@@ -9,3 +9,9 @@ advantages:
             which means that it wouldnt work offline
         now the current one has everything locally stored
         show example of firefox network tab with the old version and the new version showing how the new version is only localhost as opposed to the old one being internet based
+    better path names:
+        /q has been changed to /queue to avoid confusion on what the heck q means
+
+todo:
+    add a way to specify which directory the video will download to
+    add authentication via google authenticator

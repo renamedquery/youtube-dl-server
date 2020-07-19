@@ -1,7 +1,7 @@
 #import statements
 import flask, json
 
-#add a piece of code that makes sure that the config file is valid and if it isnt then it quits the program and tells the user to set up the app
+#add authentication via google authenticator
 
 #try to import the config file
 try:
@@ -24,3 +24,14 @@ def WEB_INDEX():
 
     #return the home page
     return flask.render_template('index.html', applicationName = configData['application_name'])
+
+#the function to handle any requests sent to the queue page (only allow POST requests) this is where it triggers the server to download the media
+@app.route('/queue', methods = ['POST'])
+def WEB_QUEUE():
+
+    #get the form data
+    YTDL_URL = flask.request.form.get('url')
+    YTDL_FORMAT = flask.request.form.get('format')
+
+    #return the queue page
+    return flask.render_template('queue.html', applicationName = configData['application_name'])
