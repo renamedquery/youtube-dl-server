@@ -13,6 +13,8 @@ advantages:
         /q has been changed to /queue to avoid confusion on what the heck q means
     error handling:
         the original program would allow you to download a video from the url "" (just an empty url) which leads to errors, the new version checks that the url is valid and if it isnt it sends you to an error page
+    updating:
+        instead of updating at the users will, the program updates every time a new video is downloaded, to prevent errors due to not updating. this may have certain downsides, but i have not yet identified those
 
 todo:
     add a way to specify which directory the video will download to
