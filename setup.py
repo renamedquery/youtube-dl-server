@@ -15,7 +15,8 @@ SECRET_URL = OTP.totp.TOTP(RANDOM_SECRET_KEY).provisioning_uri(SECRET_URL_APP_TI
 #save the details to a config file (maybe find another way to store them than plaintext?)
 configFileData = {
     'secret':RANDOM_SECRET_KEY,
-    'secret_url':SECRET_URL
+    'secret_url':SECRET_URL,
+    'application_name':SECRET_URL_APP_TITLE
 }
 
 #write the config file
