@@ -1,5 +1,5 @@
 #import statements
-import flask, json
+import flask, json, requests
 
 #add authentication via google authenticator
 
@@ -33,5 +33,21 @@ def WEB_QUEUE():
     YTDL_URL = flask.request.form.get('url')
     YTDL_FORMAT = flask.request.form.get('format')
 
+    #make a request to the url to check that it can be downloaded, if not return an error
+    try:
+        ytdlUrlRequestResponse = requests.get(url = YTDL_URL, params = {})
+        if (ytdlUrlRequestResponse.status_code != 200): #status was not 200, so you probably cant download the video
+            return flask.redirect(flask.url_for('WEB_ERROR'))
+    #there was some sort of other error, also send them to the error page
+    except:
+        return flask.redirect(flask.url_for('WEB_ERROR'))
+
     #return the queue page
-    return flask.render_template('queue.html', applicationName = configData['application_name'])
+    return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
+
+#the function to handle any requests sent to the error page (usually because a video cant be downloaded)
+@app.route('/error', methods = ['GET', 'POST'])
+def WEB_ERROR():
+
+    #return the error page
+    return flask.render_template('error.html', applicationName = configData['application_name'])

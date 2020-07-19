@@ -11,6 +11,8 @@ advantages:
         show example of firefox network tab with the old version and the new version showing how the new version is only localhost as opposed to the old one being internet based
     better path names:
         /q has been changed to /queue to avoid confusion on what the heck q means
+    error handling:
+        the original program would allow you to download a video from the url "" (just an empty url) which leads to errors, the new version checks that the url is valid and if it isnt it sends you to an error page
 
 todo:
     add a way to specify which directory the video will download to

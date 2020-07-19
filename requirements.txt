@@ -2,3 +2,4 @@ flask
 youtube-dl
 pyotp
 qrcode[pil]
+requests

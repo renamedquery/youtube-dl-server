@@ -3,9 +3,8 @@
 <div class = 'container d-flex flex-column text-light text-center'>
     <div class = 'flex-grow-1'></div>
     <div class = 'jumbotron bg-transparent flex-grow-1'>
-    <h1 class = 'display-4'>downloading...</h1>
-    <p class = 'lead'>Your video is being downloaded now. It will show up soon. Please be patient, as depending on your network connection, or the length of the video, as well as the quality, downloads can take up to an hour!</p>
-    <p class = 'lead'>You downloaded {{ vidURL }} with the quality setting of {{ vidQualSet }}.</p>
+    <h1 class = 'display-4'>error!</h1>
+    <p class = 'lead'>For some reason, there was an error while downloading the video from that URL! Please check that the URL you are trying to download with is a valid URL, and that you have internet connection. <a class = 'text-info' href = "{{ url_for('WEB_INDEX' )}}">Click here to go home.</a></p>
     </div>
     <footer>
     <div>
