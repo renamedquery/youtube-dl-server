@@ -1,7 +1,7 @@
 #import statements
 import json
 
-#save the details to a config file (maybe find another way to store them than plaintext?)
+#save the details to a config file
 configFileData = {
     'application_name':str(input('What would you like your youtube-dl-server application to be named? '))
 }
