@@ -92,8 +92,13 @@ def YTDL_POLLER():
                 os.mkdir(DEFAULT_VIDEO_DOWNLOAD_DIR)
             
             #download the video
-            youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/%(title)s [%(id)s].%(ext)s'.format(DEFAULT_VIDEO_DOWNLOAD_DIR),'default_search':'youtube'})
-            youtubeDLObject.download([video[0]])
+            try:
+                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/%(title)s [%(id)s].%(ext)s'.format(DEFAULT_VIDEO_DOWNLOAD_DIR),'default_search':'youtube'})
+                youtubeDLObject.download([video[0]])
+            
+            #there was an error, tell the log for now, and add a way to tell the user there was an error soon
+            except:
+                print('Error downloading {} with quality {}.'.format(video[0], video[1]))
         
         #since the video queue is entirely downloaded, reset the queue
         videoQueue = []
