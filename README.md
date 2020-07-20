@@ -1,47 +1,23 @@
-this is a temporary readme, maybe dont readme yet.
+# youtube-dl-server
 
-advantages:
+#### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the pre-relase stages, so deploy it at your own risk.)
 
-    can work fully offline:
+#### What is new in this version?
 
-        original webpage had:
+- You can now specify where to download the videos on the server you are downloading to, which helps simplifiy adding videos to media servers such as Plex or Jellyfin.
+- Built in metadata tagging. The downloader will now apply the appropriate metadata to media you download (artist/author/title) so that you dont need to deal with tagging everything once its downloaded. This also helps simplify adding videos to media servers.
+- All of the files are hosted locally. Previously, youtube-dl-server reached out to CDNs on the internet for web assets, however this new version has everything included locally. This means that you don't need to be reliant on external CDNs and you are in full control of your files.
+- This new version has error pages. The old version had no error pages, which can lead to some user confusion in the instance of a server side error.
+- /q has been renamed to /queue so that users know what page they are at, instead of being confused by what "q" means.
 
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+#### What is coming?
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+- A download progress and history page where you can view the status of pending, current, and past downloads. This will help the user understand what is happening on the server side, and is especially useful for cases when the user is downloading large amounts of videos, and the wait time can be unknown.
+- Local user accounts. The old version did have authentication, however it was hidden. This program is going to be fully authenticated so that you can lock down who is using your server for downloading videos. This will prevent unwanted access to the server.
+- You will be able to "subscribe" to YouTube playlists and channels. This feature makes the server auto-download new videos when they are deteced in the playlist/channel. This feature can be very useful for archiving content, such as archiving a channel's videos automatically.
+- Docker images (planning on supporting Raspis).
+- The ability to administrate the program via Systemctl.
 
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+#### How do I set this up?
 
-            which means that it wouldnt work offline
-
-        now the current one has everything locally stored
-
-        show example of firefox network tab with the old version and the new version showing how the new version is only localhost as opposed to the old one being internet based
-
-    better path names:
-
-        /q has been changed to /queue to avoid confusion on what the heck q means
-
-    error handling:
-
-        the original program would allow you to download a video from the url "" (just an empty url) which leads to errors, the new version checks that the url is valid and if it isnt it sends you to an error page
-
-    updating:
-
-        instead of updating at the users will, the program updates every time a new video is downloaded, to prevent errors due to not updating. this may have certain downsides, but i have not yet identified those
-
-todo:
-
-    make it so that youtube-dl updates every time the user downloads a video
-
-    add a webpage for the user to view the progress and history of the downloads, using statuses like PENDING, DOWNLOADING, and FAILED
-
-    maybe work on using local user accounts and avoid google auth completely
-
-    add a way to "subscribe" to youtube channels and playlists so that it downloads videos when new ones are detected in the feed
-
-    enable usage of the program via systemctl
-
-required packages:
-
-    ffmpeg
+Setup instructions will be released when the program is in its first release stage. For now, too much can change, so giving instructions right now would be pointless. At the moment, the only packages you need are `ffmpeg` and `python3` (3.6+). This has only been tested on Ubuntu 18.04 and Ubuntu Server 18.04 at the moment, and it may behave differently on other Linux operating systems. Support for Windows and Mac is not a priority, since this is a server application, however the web client works perfectly on all OSes with modern browsers.
