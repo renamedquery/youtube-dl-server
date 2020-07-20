@@ -31,8 +31,36 @@ app.template_folder = './templates'
 @app.route('/', methods = ['GET', 'POST'])
 def WEB_INDEX():
 
+    #variable for the list of valid download directories
+    downloadDirList = []
+
+    #get the list of lines in the download-dirs.txt file
+    downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
+
+    #iterate through the list of unparsed directories and get the valid ones
+    for line in downloadDirListUnparsed:
+
+        #just in case?
+        try:
+
+            #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
+            if (line[0] != '#' and not line.isspace() and os.path.exists(line)):
+
+                #add the directori to the actual list
+                downloadDirList.append(line)
+            
+            #if the directory is invalid then warn the user
+            else:
+                print('There is an issue with the directory "{}" that is in your download-dirs.txt. It may not exist.'.format(line))
+        
+        #in case something goes wrong
+        except:
+
+            #alert that there was an error
+            print('Error parsing the directori "{}".'.format(line))
+
     #return the home page
-    return flask.render_template('index.html', applicationName = configData['application_name'])
+    return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList)
 
 #the function to handle any requests sent to the queue page (only allow POST requests) this is where it triggers the server to download the media
 @app.route('/queue', methods = ['POST'])
