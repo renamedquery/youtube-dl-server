@@ -21,3 +21,4 @@ todo:
     add authentication via google authenticator
     make it so that youtube-dl updates every time the user downloads a video
     add support for multiple google auth keys
+    add a webpage for the user to view the progress and history of the downloads, using statuses like PENDING, DOWNLOADING, and FAILED
