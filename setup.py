@@ -45,11 +45,13 @@ CREATE TABLE users (
 #make the download history table (i dont think 8 bit variables will be nessecary for most applications, however if they are nessecary for you, then replace SERIAL with SERIAL8 and INT with INT8)
 DATABASE_CONNECTION.execute('''
 CREATE TABLE download_history (
-    download_id SERIAL NOT NULL PRIMARY KEY,
+    download_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR NOT NULL,
     url VARCHAR NOT NULL,
-    status INT NOT NULL
+    status INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
 )
-''')
+''') #find a way to use utc timestamps, just in case, then convert them to local on the front end
 
 #add the admin user to the database
 DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)

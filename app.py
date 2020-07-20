@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime
 
 #add authentication via google authenticator
 
@@ -101,6 +101,31 @@ def WEB_QUEUE():
     #add the video to the queue
     videoQueue.append([YTDL_URL, YTDL_FORMAT, YTDL_DIR])
 
+    #get the video title
+    youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
+    videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
+    videoTitle = videoData['title']
+
+
+    #the database connection
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+
+    #add the video to the database history
+    DATABASE_CONNECTION.execute(
+        'INSERT INTO download_history (url, title, status, timestamp) VALUES (?, ?, ?, ?)', 
+        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()))
+    )
+    DATABASE_CONNECTION.commit()
+
+    #close the database connection
+    DATABASE_CONNECTION.close()
+
+    #statuses:
+    #1 - pending
+    #2 - downloading now
+    #3 - downloaded
+    #4 - download failed
+
     #return the queue page
     return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
 
@@ -110,6 +135,13 @@ def WEB_ERROR():
 
     #return the error page
     return flask.render_template('error.html', applicationName = configData['application_name'])
+
+#the function to handle any requests to the download history page
+@app.route('/history', methods = ['GET', 'POST'])
+def WEB_HISTORY():
+
+    #return the history page
+    return 'history'
 
 #function to download videos
 def YTDL_POLLER():
