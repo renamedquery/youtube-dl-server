@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <table class = 'table table-striped overflow-auto'>
+        <thead class = 'thead-dark'>
+            <tr>
+                <th scope = 'col'>Download Status</th>
+                <th scope = 'col'>Download Link</th>
+                <th scope = 'col'>Download Title</th>
+                <th scope = 'col'>Download Format</th>
+                <th scope = 'col'>Time Download Added to Queue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in databaseData %}
+                <tr>
+                    <td scope = row>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td><a href = '{{ row[2] }}'>{{ row[2] }}</a></td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <hr class = 'my-4'>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}

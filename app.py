@@ -14,6 +14,14 @@ except FileNotFoundError:
 #the default directory for the videos to be downloaded to
 DEFAULT_VIDEO_DOWNLOAD_DIR = './downloads'
 
+#the download statuses
+DOWNLOAD_STATUSES = {
+    1:'Download Pending',
+    2:'Downloading Now',
+    3:'Downloaded',
+    4:'Download Failed'
+}
+
 #the video queue [url, format, dir]
 videoQueue = []
 
@@ -112,19 +120,13 @@ def WEB_QUEUE():
 
     #add the video to the database history
     DATABASE_CONNECTION.execute(
-        'INSERT INTO download_history (url, title, status, timestamp) VALUES (?, ?, ?, ?)', 
-        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()))
+        'INSERT INTO download_history (url, title, status, timestamp, format) VALUES (?, ?, ?, ?, ?)', 
+        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT)
     )
     DATABASE_CONNECTION.commit()
 
     #close the database connection
     DATABASE_CONNECTION.close()
-
-    #statuses:
-    #1 - pending
-    #2 - downloading now
-    #3 - downloaded
-    #4 - download failed
 
     #return the queue page
     return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
@@ -140,8 +142,39 @@ def WEB_ERROR():
 @app.route('/history', methods = ['GET', 'POST'])
 def WEB_HISTORY():
 
+    #the database connection
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #get the history data
+    DATABASE_CURSOR.execute('SELECT * FROM download_history')
+    databaseRows = DATABASE_CURSOR.fetchall()
+
+    #the parsed data
+    databaseRowsParsed = []
+
+    #iterate through the rows and make them user friendly
+    row = 1
+    for rows in databaseRows:
+
+        #if the amount of rows is greater than 200 then stop parsing the data, as this should only send the user 200 rows
+        if (row > 200):
+            break
+
+        databaseRowsParsed.append([
+            rows[0], #id
+            rows[1], #title
+            rows[2], #url
+            DOWNLOAD_STATUSES[rows[3]], #status
+            datetime.datetime.fromtimestamp(rows[4]).strftime('%m/%d/%Y - %H:%M:%S'), #timestamp
+            rows[5], #format
+        ])
+
+        #increase the row variable
+        row += 1
+
     #return the history page
-    return 'history'
+    return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed)
 
 #function to download videos
 def YTDL_POLLER():
