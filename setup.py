@@ -1,5 +1,5 @@
 #import statements
-import json, sqlite3, os
+import json, sqlite3, os, argon2
 
 #save the details to a config file
 configFileData = {
@@ -11,6 +11,23 @@ if (os.path.exists('./youtube-dl-server-database.db')):
 
     #tell the user that there is a database, then exit. the user will then do what they need to do with the old database.
     print('There already is an existing database! Please move the old database to another directory, or if you are trying to use the old database again, rename it to "youtube-dl-server-database.db.old", then run the setup program again, and then replace the new database with the old database. Please keep in mind that importing a database from an older version of the program can lead to errors, if its not converted properly!')
+    exit()
+
+#get the credentials for the admin user
+print('In order for you to administer the server from the web, there needs to be an admin user. Please create one. Make sure that the admin\'s password is strong.')
+username = str(input('Admin username: '))
+password = str(input('Admin password: '))
+passwordConfirm = str(input('Confirm admin password: '))
+
+#hash the admins password
+passwordHasher = argon2.PasswordHasher()
+hashedPassword = passwordHasher.hash(password)
+
+#check that the passwords match
+if (not passwordHasher.verify(hashedPassword, password) or not password == passwordConfirm):
+
+    #the passwords didnt match, tell the user that there was an error and then quit
+    print('The hashed admin password did not match the plaintext admin password, or the passwords did not match. Please check that the passwords you used match.')
     exit()
 
 #create the database
@@ -34,6 +51,10 @@ CREATE TABLE download_history (
 )
 ''')
 
+#add the admin user to the database
+DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)
+DATABASE_CONNECTION.commit()
+
 #write the config file
 configFile = open('./config.json', 'w')
 configFile.write(json.dumps(configFileData))
@@ -54,3 +75,6 @@ downloadDirsFile.write('''
 
 #tell the user information about the config
 print('Setup is complete!')
+
+#close the database connection
+DATABASE_CONNECTION.close()

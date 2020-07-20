@@ -1,3 +1,4 @@
 flask
 youtube-dl
 requests
+argon2-cffi
