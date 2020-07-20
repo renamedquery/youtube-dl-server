@@ -48,8 +48,6 @@ todo:
 
     enable usage of the program via systemctl
 
-    make it so that when the video is downloaded, the appropriate metadata such as the title and author are added to the file, to enable easy usage with services like plex and jellyfin
-
 required packages:
 
     ffmpeg
