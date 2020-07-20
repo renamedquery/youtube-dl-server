@@ -45,3 +45,5 @@ todo:
     maybe work on using local user accounts and avoid google auth completely
 
     add a way to "subscribe" to youtube channels and playlists so that it downloads videos when new ones are detected in the feed
+
+    enable usage of the program via systemctl
