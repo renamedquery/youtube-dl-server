@@ -43,7 +43,7 @@
                 <div class = 'row justify-content-center'>
                     <p class = 'col-lg-6 my-auto'>What folder do you want the video to download to?</p>
                     <select class = 'custom-select col-lg-6' name = 'directory'>
-                        <option value = './downloads'>Default download folder</option>
+                        <option value = '{{ DEFAULT_VIDEO_DOWNLOAD_DIR }}'>Default download folder</option>
                         {% for file in downloadDirs %}
                             <option value = '{{ file }}'>{{ file }}</option>
                         {% endfor %}

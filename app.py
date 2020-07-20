@@ -14,7 +14,7 @@ except FileNotFoundError:
 #the default directory for the videos to be downloaded to
 DEFAULT_VIDEO_DOWNLOAD_DIR = './downloads'
 
-#the video queue [url, format]
+#the video queue [url, format, dir]
 videoQueue = []
 
 #the valid video formats
@@ -60,7 +60,7 @@ def WEB_INDEX():
             print('Error parsing the directori "{}".'.format(line))
 
     #return the home page
-    return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList)
+    return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
 
 #the function to handle any requests sent to the queue page (only allow POST requests) this is where it triggers the server to download the media
 @app.route('/queue', methods = ['POST'])
@@ -72,6 +72,16 @@ def WEB_QUEUE():
     #get the form data
     YTDL_URL = str(flask.request.form.get('url'))
     YTDL_FORMAT = str(flask.request.form.get('format'))
+    YTDL_DIR = str(flask.request.form.get('directory'))
+
+    #get a list of the download directories to ensure that the directory is valid
+    downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
+
+    #check if the directory is in the download-dir.txt list or is the default directory
+    if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR]):
+        
+        #since the directory was not in the list of valid directories, return an error
+        return flask.redirect(flask.url_for('WEB_ERROR'))
 
     #make a request to the url to check that it can be downloaded, if not return an error
     try:
@@ -89,7 +99,7 @@ def WEB_QUEUE():
         return flask.redirect(flask.url_for('WEB_ERROR'))
     
     #add the video to the queue
-    videoQueue.append([YTDL_URL, YTDL_FORMAT])
+    videoQueue.append([YTDL_URL, YTDL_FORMAT, YTDL_DIR])
 
     #return the queue page
     return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
@@ -122,8 +132,11 @@ def YTDL_POLLER():
             #download the video
             try:
 
+                #the download directory
+                downloadDir = str(video[2])
+
                 #set up the youtube downloader object
-                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/%(title)s [%(id)s].%(ext)s'.format(DEFAULT_VIDEO_DOWNLOAD_DIR),'default_search':'youtube'})
+                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/%(title)s [%(id)s].%(ext)s'.format(downloadDir),'default_search':'youtube'})
 
                 #download the video
                 youtubeDLObject.download([video[0]])
@@ -143,20 +156,20 @@ def YTDL_POLLER():
 
                 #encode the media file with the data
                 os.system('ffmpeg -i "{}/{} [{}].{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
-                    DEFAULT_VIDEO_DOWNLOAD_DIR, #download directory
+                    downloadDir, #download directory
                     youtubeVideoMetadataData['title'], #title
                     youtubeVideoMetadataData['id'], #id
                     youtubeVideoMetadataData['ext'], #extension
                     youtubeVideoMetadataData['title'], #metadata title
                     youtubeVideoMetadataData['uploader'], #metadata author (for video)
                     youtubeVideoMetadataData['uploader'], #metadata artist (for music)
-                    DEFAULT_VIDEO_DOWNLOAD_DIR, #download directory
+                    downloadDir, #download directory
                     youtubeVideoMetadataData['title'], #title
                     youtubeVideoMetadataData['ext'] #extension
                 ))
 
                 #delete the original file
-                os.remove('{}/{} [{}].{}'.format(DEFAULT_VIDEO_DOWNLOAD_DIR, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['id'], youtubeVideoMetadataData['ext']))
+                os.remove('{}/{} [{}].{}'.format(downloadDir, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['id'], youtubeVideoMetadataData['ext']))
             
             #there was an error, tell the log for now, and add a way to tell the user there was an error soon
             except:
