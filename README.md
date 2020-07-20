@@ -19,3 +19,4 @@ advantages:
 todo:
     add a way to specify which directory the video will download to
     add authentication via google authenticator
+    make it so that youtube-dl updates every time the user downloads a video
