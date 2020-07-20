@@ -135,11 +135,11 @@ def YTDL_POLLER():
                 #the download directory
                 downloadDir = str(video[2])
 
-                #set up the youtube downloader object
-                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/%(title)s [%(id)s].%(ext)s'.format(downloadDir),'default_search':'youtube'})
+                #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
+                tmpFileNameNumber = str(time.time())
 
-                #download the video
-                youtubeDLObject.download([video[0]])
+                #set up the youtube downloader object
+                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/{}.%(ext)s'.format(downloadDir, tmpFileNameNumber),'default_search':'youtube'})
 
                 #download the metadata so that the video can be tagged for usage with streaming servers
                 youtubeVideoData = youtubeDLObject.extract_info(video[0], download = False)
@@ -154,11 +154,13 @@ def YTDL_POLLER():
                     'playlist_index':youtubeVideoData['playlist_index'],
                 }
 
+                #download the video
+                youtubeDLObject.download([video[0]])
+
                 #encode the media file with the data
-                os.system('ffmpeg -i "{}/{} [{}].{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
+                os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
                     downloadDir, #download directory
-                    youtubeVideoMetadataData['title'], #title
-                    youtubeVideoMetadataData['id'], #id
+                    tmpFileNameNumber, #filename
                     youtubeVideoMetadataData['ext'], #extension
                     youtubeVideoMetadataData['title'], #metadata title
                     youtubeVideoMetadataData['uploader'], #metadata author (for video)
@@ -169,7 +171,7 @@ def YTDL_POLLER():
                 ))
 
                 #delete the original file
-                os.remove('{}/{} [{}].{}'.format(downloadDir, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['id'], youtubeVideoMetadataData['ext']))
+                os.remove('{}/{}.{}'.format(downloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
             
             #there was an error, tell the log for now, and add a way to tell the user there was an error soon
             except:
