@@ -1,5 +1,5 @@
 #import statements
-import json, sqlite3, os, argon2
+import json, sqlite3, os, argon2, getpass
 
 #save the details to a config file
 configFileData = {
@@ -16,8 +16,8 @@ if (os.path.exists('./youtube-dl-server-database.db')):
 #get the credentials for the admin user
 print('In order for you to administer the server from the web, there needs to be an admin user. Please create one. Make sure that the admin\'s password is strong.')
 username = str(input('Admin username: '))
-password = str(input('Admin password: '))
-passwordConfirm = str(input('Confirm admin password: '))
+password = str(getpass.getpass(prompt = 'Admin password: '))
+passwordConfirm = str(getpass.getpass(prompt = 'Confirm admin password: '))
 
 #hash the admins password
 passwordHasher = argon2.PasswordHasher()
