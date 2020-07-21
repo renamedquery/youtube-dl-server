@@ -19,6 +19,7 @@
 - The ability to administrate the program via Systemctl.
 - Detailed error messages.
 - Support for downloading videos with captions.
+- Support for using multiple proxies for multiple download workers/pollers.
 
 #### How do I set this up?
 
