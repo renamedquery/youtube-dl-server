@@ -17,6 +17,7 @@
 - You will be able to "subscribe" to YouTube playlists and channels. This feature makes the server auto-download new videos when they are deteced in the playlist/channel. This feature can be very useful for archiving content, such as archiving a channel's videos automatically.
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
+- Detailed error messages.
 
 #### How do I set this up?
 

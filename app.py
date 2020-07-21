@@ -66,8 +66,8 @@ def WEB_INDEX():
     #return the home page
     return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
 
-#the function to handle any requests sent to the queue page (only allow POST requests) this is where it triggers the server to download the media
-@app.route('/queue', methods = ['POST'])
+#the function to handle any requests sent to the queue page this is where it triggers the server to download the media
+@app.route('/queue', methods = ['GET', 'POST'])
 def WEB_QUEUE():
 
     #import the global variable for the queue and the valid video formats variable
@@ -82,7 +82,7 @@ def WEB_QUEUE():
     downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
 
     #check if the directory is in the download-dir.txt list or is the default directory
-    if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR]):
+    if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
         
         #since the directory was not in the list of valid directories, return an error
         return flask.redirect(flask.url_for('WEB_ERROR'))
@@ -122,6 +122,8 @@ def WEB_QUEUE():
 
     #the database connection
     DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+
+    #the database cursor
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #add the videos to the database history
@@ -132,6 +134,38 @@ def WEB_QUEUE():
         )
         YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
         DATABASE_CONNECTION.commit()
+
+        #if the directory is set to the browser to computer download, assume that its a singular video, and download it (this will run only once, since it returns something no matter what)
+        if (YTDL_DIR == '#browser2computer'):
+
+            #set the directory to the default download dir
+            YTDL_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR
+
+            #put this inside a try catch statement for simple error handling
+            try:
+
+                #updat the database and tell it that the download is happening now
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', YTDL_DL_ID))
+                DATABASE_CONNECTION.commit()
+
+                #download the video to the browser
+                return flask.send_file(downloadVideo(video[0], YTDL_FORMAT, YTDL_DL_ID, parentDownloadDir = YTDL_DIR), as_attachment = True)
+
+                #update the database and tell it that the download was successful
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', YTDL_DL_ID))
+                DATABASE_CONNECTION.commit()
+
+                return flask.send_file('./qr.png', attachment_filename = 'download.png')
+
+            #something went wrong, it was probably the wrong link
+            except IOError:
+
+                #return the error page
+                return flask.redirect(flask.url_for('WEB_ERROR'))
+
+                #update the database and tell it that the download was unsuccessful
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', video[3]))
+                DATABASE_CONNECTION.commit()
 
         #append the video to the queue
         videoQueue.append([video[0], YTDL_FORMAT, YTDL_DIR, YTDL_DL_ID])
@@ -180,7 +214,61 @@ def WEB_HISTORY():
     #return the history page
     return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed)
 
-#function to download videos
+#function to download videos (returns the path of the downloaded video)
+def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
+
+    #check that the video download directory exists
+    if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
+
+        #since the directory doesnt exist, make it
+        os.mkdir(DEFAULT_VIDEO_DOWNLOAD_DIR)
+
+    #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
+    tmpFileNameNumber = str(time.time())
+
+    print(parentDownloadDir)
+
+    #set up the youtube downloader object
+    youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+
+    #download the metadata so that the video can be tagged for usage with streaming servers
+    youtubeVideoData = youtubeDLObject.extract_info(videoURL, download = False)
+    
+    #get the data that is needed (this isnt a nessecary step, but it makes the code easier to work with)
+    youtubeVideoMetadataData = {
+        'ext':youtubeVideoData['ext'],
+        'title':youtubeVideoData['title'],
+        'uploader':youtubeVideoData['uploader'],
+        'id':youtubeVideoData['id'],
+        'playlist':youtubeVideoData['album'],
+        'playlist_index':youtubeVideoData['playlist_index'],
+    }
+
+    #download the video
+    youtubeDLObject.download([videoURL])
+
+    #encode the media file with the data
+    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
+        parentDownloadDir, #download directory
+        tmpFileNameNumber, #filename
+        youtubeVideoMetadataData['ext'], #extension
+        youtubeVideoMetadataData['title'], #metadata title
+        youtubeVideoMetadataData['uploader'], #metadata author (for video)
+        youtubeVideoMetadataData['uploader'], #metadata artist (for music)
+        parentDownloadDir, #download directory
+        youtubeVideoMetadataData['title'], #title
+        youtubeVideoMetadataData['ext'] #extension
+    ))
+
+    #delete the original file
+    os.remove('{}/{}.{}'.format(parentDownloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
+
+    #return the path of the video
+    return '{}/{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+
+#def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
+
+#function to poll for new videos and then download them
 def YTDL_POLLER():
 
     #import the global variable for the queue
@@ -194,12 +282,6 @@ def YTDL_POLLER():
 
             #initialize a connection with the database
             DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
-
-            #check that the video download directory exists
-            if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
-
-                #since the directory doesnt exist, make it
-                os.mkdir(DEFAULT_VIDEO_DOWNLOAD_DIR)
             
             #download the video
             try:
@@ -208,48 +290,10 @@ def YTDL_POLLER():
                 DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', video[3]))
                 DATABASE_CONNECTION.commit()
 
-                #the download directory
-                downloadDir = str(video[2])
-
-                #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
-                tmpFileNameNumber = str(time.time())
-
-                #set up the youtube downloader object
-                youtubeDLObject = youtube_dl.YoutubeDL({'format':video[1],'outtmpl':'{}/{}.%(ext)s'.format(downloadDir, tmpFileNameNumber),'default_search':'youtube'})
-
-                #download the metadata so that the video can be tagged for usage with streaming servers
-                youtubeVideoData = youtubeDLObject.extract_info(video[0], download = False)
-                
-                #get the data that is needed (this isnt a nessecary step, but it makes the code easier to work with)
-                youtubeVideoMetadataData = {
-                    'ext':youtubeVideoData['ext'],
-                    'title':youtubeVideoData['title'],
-                    'uploader':youtubeVideoData['uploader'],
-                    'id':youtubeVideoData['id'],
-                    'playlist':youtubeVideoData['album'],
-                    'playlist_index':youtubeVideoData['playlist_index'],
-                }
-
                 #download the video
-                youtubeDLObject.download([video[0]])
+                downloadPath = downloadVideo(video[0], video[1], video[3], parentDownloadDir = video[2])
 
-                #encode the media file with the data
-                os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
-                    downloadDir, #download directory
-                    tmpFileNameNumber, #filename
-                    youtubeVideoMetadataData['ext'], #extension
-                    youtubeVideoMetadataData['title'], #metadata title
-                    youtubeVideoMetadataData['uploader'], #metadata author (for video)
-                    youtubeVideoMetadataData['uploader'], #metadata artist (for music)
-                    downloadDir, #download directory
-                    youtubeVideoMetadataData['title'], #title
-                    youtubeVideoMetadataData['ext'] #extension
-                ))
-
-                #delete the original file
-                os.remove('{}/{}.{}'.format(downloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
-
-                #updat the database and tell it that the download was successful
+                #update the database and tell it that the download was successful
                 DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', video[3]))
                 DATABASE_CONNECTION.commit()
             
@@ -257,7 +301,7 @@ def YTDL_POLLER():
             except:
                 print('Error downloading {} with quality {}.'.format(video[0], video[1]))
 
-                #updat the database and tell it that the download was unsuccessful
+                #update the database and tell it that the download was unsuccessful
                 DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', video[3]))
                 DATABASE_CONNECTION.commit()
         
