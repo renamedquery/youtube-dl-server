@@ -56,10 +56,6 @@ def WEB_INDEX():
 
                 #add the directori to the actual list
                 downloadDirList.append(line)
-            
-            #if the directory is invalid then warn the user
-            else:
-                print('There is an issue with the directory "{}" that is in your download-dirs.txt. It may not exist.'.format(line))
         
         #in case something goes wrong
         except:
