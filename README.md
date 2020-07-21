@@ -18,6 +18,7 @@
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Detailed error messages.
+- Support for downloading videos with captions.
 
 #### How do I set this up?
 
