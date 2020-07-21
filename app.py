@@ -224,6 +224,13 @@ def WEB_HISTORY():
     #return the history page
     return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed)
 
+#the function to handle any requests to the login page
+@app.route('/login', methods = ['GET', 'POST'])
+def WEB_LOGIN():
+
+    #return the login page
+    return flask.render_template('login.html', applicationName = configData['application_name'])
+
 #function to download videos (returns the path of the downloaded video)
 def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
 

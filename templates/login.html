@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+        <h1 class = 'display-4'>log in</h1>
+        <form action = '/auth' method = 'POST'>
+            <div class = 'col-lg-6 centeredForm'>
+                <input name = 'username' type = 'text' class = 'form-control' placeholder = 'Username' autofocus>
+            </div>
+            <div class = 'col-lg-6 centeredForm'>
+                <input name = 'password' type = 'password' class = 'form-control' placeholder = 'Password'>
+            </div>
+            <div class = 'col-lg-3 centeredForm'>
+                <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Submit login details</button>
+            </div>
+        </form>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}
