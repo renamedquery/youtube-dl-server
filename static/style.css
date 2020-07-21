@@ -4,3 +4,4 @@ div.input-group>select.custom-select {flex: 0.1 1 100px;}
 #advancedOptionsCollapsableDiv{background-color:transparent !important;border:0px !important;}
 .card{background-color:transparent !important;border:0px !important;}
 hr{border-top:1px solid transparent;}
+#history-table{font-size:13px;}
