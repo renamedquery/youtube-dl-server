@@ -148,12 +148,15 @@ def WEB_QUEUE():
                 DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', YTDL_DL_ID))
                 DATABASE_CONNECTION.commit()
 
-                #download the video to the browser
-                return flask.send_file(downloadVideo(video[0], YTDL_FORMAT, YTDL_DL_ID, parentDownloadDir = YTDL_DIR), as_attachment = True)
+                #the path for the file that is being downloaded
+                downloadedVideoFilePath = downloadVideo(video[0], YTDL_FORMAT, YTDL_DL_ID, parentDownloadDir = YTDL_DIR)
 
                 #update the database and tell it that the download was successful
                 DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', YTDL_DL_ID))
                 DATABASE_CONNECTION.commit()
+
+                #download the video to the browser
+                return flask.send_file(downloadedVideoFilePath, as_attachment = True)
 
                 return flask.send_file('./qr.png', attachment_filename = 'download.png')
 
