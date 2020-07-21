@@ -159,7 +159,7 @@ def WEB_QUEUE():
                 return flask.send_file(downloadedVideoFilePath, as_attachment = True)
 
             #something went wrong, it was probably the wrong link
-            except IOError:
+            except:
 
                 #return the error page
                 return flask.redirect(flask.url_for('WEB_ERROR'))
