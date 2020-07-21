@@ -279,6 +279,23 @@ def WEB_LOGIN():
     #return the login page
     return flask.render_template('login.html', applicationName = configData['application_name'])
 
+#the function to handle any requests to the logout page
+@app.route('/logout', methods = ['GET', 'POST'])
+def WEB_LOGOUT():
+
+    #try to remove the session variables
+    try:
+
+        #remove the users session variables
+        del flask.session['LOGGED_IN_ACCOUNT_DATA']
+    
+    #something went wrong, they probably werent even logged in
+    except:
+        pass
+
+    #redirect the user to the home page
+    return flask.redirect(flask.url_for('WEB_INDEX'))
+
 #the function to handle any requests to the authentication page (for logging in, not for signing up)
 @app.route('/auth', methods = ['POST'])
 def WEB_AUTH():
