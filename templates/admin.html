@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+        <h1 class = 'display-4'>administrator settings</h1>
+        <p class = 'lead'>You can change the settings for your youtube-dl-server installation here. This is where you manage/add/delete users.</p>
+        <div>
+            <table class = 'table-responsive-xl table table-bordered overflow-auto' id = 'history-table'>
+                <thead>
+                    <tr>
+                        <th scope = 'col'>Username</th>
+                        <th scope = 'col'>Is Admin</th>
+                        <th scole = 'col'>Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in userData %}
+                        <tr>
+                            <td scope = row>{{ user[0] }}</td>
+                            <td>{{ user[1] }}</td>
+                            <td>
+                                <form action = '/deleteuser/{{ user[0] }}' method = 'POST'>
+                                    <button class = 'btn btn-danger' type = 'submit' id = 'button-submit'>Delete User</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a> - <a class = 'text-light' href = "{{ url_for('WEB_LOGOUT') }}">(LOG OUT)</a>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}

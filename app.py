@@ -356,6 +356,110 @@ def WEB_AUTH():
     #return the temprary page
     return flask.redirect(flask.url_for('WEB_INDEX'))
 
+#the function to handle any requests to the delete user page (only accessible by post request, by admins only)
+@app.route('/deleteuser/<string:user>', methods = ['POST'])
+def WEB_DELETEUSER(user):
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+        #check that their privelege is 1 and not 0
+        if (str(adminPrivelegeResults) == '1'):
+
+            #get whether or not the user they are trying to delete is an admin, admins cant be deleted via the web interface
+            DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (user,))
+            adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+            #if the user they are trying to delete is an admin, return an error
+            if (str(adminPrivelegeResults) == '1'):
+
+                #return the error page
+                return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Failed user delete. Can not delete admins via the web interface.')
+            
+            #delete the user
+            DATABASE_CONNECTION.execute('DELETE FROM users WHERE username = ?', (user,))
+            DATABASE_CONNECTION.commit()
+
+            #return the the admin page so they can continue
+            return flask.redirect(flask.url_for('WEB_ADMIN'))
+        
+        #they arent an admin
+        else:
+
+            #return the home page
+            return flask.redirect(flask.url_for('WEB_INDEX'))
+
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = configData['application_name'])
+
+#the function to handle any requests to the administrator page
+@app.route('/admin', methods = ['GET', 'POST'])
+def WEB_ADMIN():
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+        
+        #check that their privelege is 1 and not 0
+        if (str(adminPrivelegeResults) == '1'):
+
+            #get the data for the users
+            DATABASE_CURSOR.execute('SELECT * FROM users')
+            userData = DATABASE_CURSOR.fetchall()
+            
+            #the user data that is going to be sent to the browser
+            userDataForBrowser = []
+
+            #iterate through the users and add the "removable" variable
+            for user in userData:
+
+                #the line of data that is being added
+                userDataLine = [
+                    user[0], #username
+                    False, #is an admin
+                ]
+                
+                #check if the user is an admin
+                if (str(user[2]) == '1'):
+                    
+                    userDataLine[1] = True
+                
+                #append the user data to the user data for browser list
+                userDataForBrowser.append(userDataLine)
+
+            #return the admin page
+            return flask.render_template('admin.html', applicationName = configData['application_name'], userData = userDataForBrowser)
+        
+        #they dont have admin priveleges, just return them to the homepage
+        else:
+
+            #return the return the home page page
+            return flask.redirect(flask.url_for('WEB_INDEX'))
+    
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = configData['application_name'])
+
 #function to check whether or not the user is logged in (userSession should be the flask.session['LOGGED_IN_ACCOUNT_DATA'] variable)
 def isUserLoggedIn(userSession) -> bool:
 
