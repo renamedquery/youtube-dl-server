@@ -120,8 +120,8 @@ def WEB_QUEUE():
 
     #add the video to the database history
     DATABASE_CONNECTION.execute(
-        'INSERT INTO download_history (url, title, status, timestamp, format) VALUES (?, ?, ?, ?, ?)', 
-        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT)
+        'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path) VALUES (?, ?, ?, ?, ?, ?)', 
+        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR)
     )
     DATABASE_CONNECTION.commit()
 
@@ -168,6 +168,7 @@ def WEB_HISTORY():
             DOWNLOAD_STATUSES[rows[3]], #status
             datetime.datetime.fromtimestamp(rows[4]).strftime('%m/%d/%Y - %H:%M:%S'), #timestamp
             rows[5], #format
+            rows[6], #download dir path
         ])
 
         #increase the row variable
