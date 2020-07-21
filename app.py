@@ -22,7 +22,7 @@ DOWNLOAD_STATUSES = {
     4:'Download Failed'
 }
 
-#the video queue [url, format, dir]
+#the video queue [url, format, dir, download id]
 videoQueue = []
 
 #the valid video formats
@@ -105,9 +105,6 @@ def WEB_QUEUE():
 
         #the format is incorrect, dont download and return an error
         return flask.redirect(flask.url_for('WEB_ERROR'))
-    
-    #add the video to the queue
-    videoQueue.append([YTDL_URL, YTDL_FORMAT, YTDL_DIR])
 
     #get the video title
     youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
@@ -117,16 +114,21 @@ def WEB_QUEUE():
 
     #the database connection
     DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #add the video to the database history
-    DATABASE_CONNECTION.execute(
+    DATABASE_CURSOR.execute(
         'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path) VALUES (?, ?, ?, ?, ?, ?)', 
         (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR)
     )
+    YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
     DATABASE_CONNECTION.commit()
 
     #close the database connection
     DATABASE_CONNECTION.close()
+
+    #add the video to the queue
+    videoQueue.append([YTDL_URL, YTDL_FORMAT, YTDL_DIR, YTDL_DL_ID])
 
     #return the queue page
     return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
@@ -189,6 +191,9 @@ def YTDL_POLLER():
         #download all the videos on the queue
         for video in videoQueue:
 
+            #initialize a connection with the database
+            DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+
             #check that the video download directory exists
             if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
 
@@ -197,6 +202,10 @@ def YTDL_POLLER():
             
             #download the video
             try:
+
+                #updat the database and tell it that the download is happening now
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', video[3]))
+                DATABASE_CONNECTION.commit()
 
                 #the download directory
                 downloadDir = str(video[2])
@@ -238,10 +247,18 @@ def YTDL_POLLER():
 
                 #delete the original file
                 os.remove('{}/{}.{}'.format(downloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
+
+                #updat the database and tell it that the download was successful
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', video[3]))
+                DATABASE_CONNECTION.commit()
             
             #there was an error, tell the log for now, and add a way to tell the user there was an error soon
             except:
                 print('Error downloading {} with quality {}.'.format(video[0], video[1]))
+
+                #updat the database and tell it that the download was unsuccessful
+                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', video[3]))
+                DATABASE_CONNECTION.commit()
         
         #since the video queue is entirely downloaded, reset the queue
         videoQueue = []
