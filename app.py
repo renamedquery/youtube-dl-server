@@ -107,6 +107,12 @@ def WEB_QUEUE():
             #add all the videos to the list
             for video in videoData['entries']:
                 youtubeDLVideoList.append([video['webpage_url'], video['title']]) #[url, title]
+        
+        #it is a video and not a playlist
+        else:
+
+            #add the video to the list
+            youtubeDLVideoList.append([videoData['webpage_url'], videoData['title']]) #[url, title]
             
     #the url probably wasnt supported
     except:
