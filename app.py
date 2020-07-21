@@ -161,19 +161,14 @@ def WEB_HISTORY():
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #get the history data
-    DATABASE_CURSOR.execute('SELECT * FROM download_history')
+    DATABASE_CURSOR.execute('SELECT * FROM download_history ORDER BY download_id DESC LIMIT 200')
     databaseRows = DATABASE_CURSOR.fetchall()
 
     #the parsed data
     databaseRowsParsed = []
 
     #iterate through the rows and make them user friendly
-    row = 1
     for rows in databaseRows:
-
-        #if the amount of rows is greater than 200 then stop parsing the data, as this should only send the user 200 rows
-        if (row > 200):
-            break
 
         databaseRowsParsed.append([
             rows[0], #id
@@ -184,9 +179,6 @@ def WEB_HISTORY():
             rows[5], #format
             rows[6], #download dir path
         ])
-
-        #increase the row variable
-        row += 1
 
     #return the history page
     return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed)
