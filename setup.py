@@ -1,5 +1,6 @@
 #import statements
-import json, sqlite3, os, argon2, getpass
+import json, sqlite3, os, getpass
+import werkzeug.security as WZS
 
 #save the details to a config file
 configFileData = {
@@ -20,11 +21,10 @@ password = str(getpass.getpass(prompt = 'Admin password: '))
 passwordConfirm = str(getpass.getpass(prompt = 'Confirm admin password: '))
 
 #hash the admins password
-passwordHasher = argon2.PasswordHasher()
-hashedPassword = passwordHasher.hash(password)
+hashedPassword = WZS.generate_password_hash(password)
 
 #check that the passwords match
-if (not passwordHasher.verify(hashedPassword, password) or not password == passwordConfirm):
+if (not WZS.check_password_hash(hashedPassword, password) or not password == passwordConfirm):
 
     #the passwords didnt match, tell the user that there was an error and then quit
     print('The hashed admin password did not match the plaintext admin password, or the passwords did not match. Please check that the passwords you used match.')
