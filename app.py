@@ -1,7 +1,7 @@
 #import statements
 import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime
-
-#add authentication via google authenticator
+import urllib.parse as URLLIB_PARSE
+import werkzeug.security as WZS
 
 #try to import the config file
 try:
@@ -62,14 +62,14 @@ def WEB_INDEX():
             #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
             if (line[0] != '#' and not line.isspace() and os.path.exists(line)):
 
-                #add the directori to the actual list
+                #add the directory to the actual list
                 downloadDirList.append(line)
         
         #in case something goes wrong
         except:
 
             #alert that there was an error
-            print('Error parsing the directori "{}".'.format(line))
+            print('Error parsing the directory "{}".'.format(line))
 
     #return the home page
     return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
@@ -230,6 +230,63 @@ def WEB_LOGIN():
 
     #return the login page
     return flask.render_template('login.html', applicationName = configData['application_name'])
+
+#the function to handle any requests to the authentication page (requests can either be from /login, or /register)
+@app.route('/auth', methods = ['POST'])
+def WEB_AUTH():
+
+    #the page that sent the post request to authenticate
+    referringURL = flask.request.referrer
+
+    #get the path in the referring url (will return something like ['', 'login', '']) so you still need to remove the empty strings
+    referringURLPath = (URLLIB_PARSE.urlparse(referringURL).path).split('/')
+
+    #remove the empty strings in the url path list
+    for i in range(referringURLPath.count('')):
+
+        #remove an empty string
+        referringURLPath.remove('')
+    
+    #the path thats now parsed so that itll always be the same
+    alwaysSamePath = '/'.join(referringURLPath)
+    
+    #initialize a connection with the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+
+    #check if the request was sent from the login page
+    if (alwaysSamePath == 'login'):
+
+        #giant try catch just in case
+        try:
+        
+            #get the login form data
+            LOGIN_FORM_USERNAME = str(flask.request.form.get('username'))
+            LOGIN_FORM_PASSWORD = str(flask.request.form.get('password'))
+
+            #get the hashed password for the username (if the length of the response is 0, there is no user that exists with that name, so give an error)
+            DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+            DATABASE_CURSOR.execute('SELECT password FROM users WHERE username = ?', (LOGIN_FORM_USERNAME,)) #this tuple has to have a , at the end because of this error https://stackoverflow.com/questions/16856647/sqlite3-programmingerror-incorrect-number-of-bindings-supplied-the-current-sta
+            databaseResults = DATABASE_CURSOR.fetchall()
+            if (len(databaseResults) == 0):
+
+                #return an at the webpage
+                return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            
+            #match the two passwords
+            DATABASE_PASSWORD_HASH = databaseResults[0][0]
+            if (not WZS.check_password_hash(DATABASE_PASSWORD_HASH, LOGIN_FORM_PASSWORD)):
+
+                #the passwords didnt match, return an error at the webpage
+                return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+        
+        #something went wrong, notify the user
+        except:
+            
+            #return an error at the webpage
+            return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+
+    #return the temprary page
+    return flask.redirect(flask.url_for('WEB_INDEX'))
 
 #function to download videos (returns the path of the downloaded video)
 def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
