@@ -22,6 +22,14 @@ DOWNLOAD_STATUSES = {
     4:'Download Failed'
 }
 
+#the download status color classes
+DOWNLOAD_STATUS_COLOR_CLASSES = {
+    1:'text-warning',
+    2:'text-success',
+    3:'',
+    4:'text-danger'
+}
+
 #the video queue [url, format, dir, download id]
 videoQueue = []
 
@@ -210,6 +218,7 @@ def WEB_HISTORY():
             datetime.datetime.fromtimestamp(rows[4]).strftime('%m/%d/%Y - %H:%M:%S'), #timestamp
             rows[5], #format
             rows[6], #download dir path
+            DOWNLOAD_STATUS_COLOR_CLASSES[rows[3]] #download color
         ])
 
     #return the history page
