@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
@@ -102,6 +102,7 @@ def WEB_QUEUE():
         YTDL_URL = str(flask.request.form.get('url'))
         YTDL_FORMAT = str(flask.request.form.get('format'))
         YTDL_DIR = str(flask.request.form.get('directory'))
+        YTDL_ORDER = str(flask.request.form.get('order'))
 
         #get a list of the download directories to ensure that the directory is valid
         downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
@@ -150,6 +151,12 @@ def WEB_QUEUE():
 
         #the database cursor
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #if the video order is random then shuffle the video list
+        if (YTDL_ORDER == 'random'):
+            
+            #shuffle the order of the videos randomly
+            random.shuffle(youtubeDLVideoList)
 
         #add the videos to the database history
         for video in youtubeDLVideoList:
