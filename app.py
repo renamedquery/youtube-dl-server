@@ -103,10 +103,16 @@ def WEB_QUEUE():
         return flask.redirect(flask.url_for('WEB_ERROR'))
 
     #get the video title
-    youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
-    videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
-    videoTitle = videoData['title']
+    try:
+        youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
+        videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
+        videoTitle = videoData['title']
+    
+    #the url probably wasnt supported
+    except:
 
+        #redirect the user to the error page
+        return flask.redirect(flask.url_for('WEB_ERROR'))
 
     #the database connection
     DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
