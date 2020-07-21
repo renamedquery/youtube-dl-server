@@ -86,15 +86,6 @@ def WEB_QUEUE():
         
         #since the directory was not in the list of valid directories, return an error
         return flask.redirect(flask.url_for('WEB_ERROR'))
-
-    #make a request to the url to check that it can be downloaded, if not return an error
-    try:
-        ytdlUrlRequestResponse = requests.get(url = YTDL_URL, params = {})
-        if (ytdlUrlRequestResponse.status_code != 200): #status was not 200, so you probably cant download the video
-            return flask.redirect(flask.url_for('WEB_ERROR'))
-    #there was some sort of other error, also send them to the error page
-    except:
-        return flask.redirect(flask.url_for('WEB_ERROR'))
     
     #check that the video format is valid
     if (YTDL_FORMAT.lower() not in validVideoFormats):
