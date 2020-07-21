@@ -102,12 +102,21 @@ def WEB_QUEUE():
         #the format is incorrect, dont download and return an error
         return flask.redirect(flask.url_for('WEB_ERROR'))
 
-    #get the video title
+    #the list of youtube videos to be downloaded (normally one one, but can be multiple in the case of a playlist)
+    youtubeDLVideoList = []
+
+    #get the video data
     try:
         youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
         videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
-        videoTitle = videoData['title']
-    
+        
+        #check if it is a playlist by checking if the 'entries' key exists
+        if ('entries' in videoData):
+
+            #add all the videos to the list
+            for video in videoData['entries']:
+                youtubeDLVideoList.append([video['webpage_url'], video['title']]) #[url, title]
+            
     #the url probably wasnt supported
     except:
 
@@ -118,19 +127,20 @@ def WEB_QUEUE():
     DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
-    #add the video to the database history
-    DATABASE_CURSOR.execute(
-        'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path) VALUES (?, ?, ?, ?, ?, ?)', 
-        (YTDL_URL, videoTitle, 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR)
-    )
-    YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
-    DATABASE_CONNECTION.commit()
+    #add the videos to the database history
+    for video in youtubeDLVideoList:
+        DATABASE_CURSOR.execute(
+            'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path) VALUES (?, ?, ?, ?, ?, ?)', 
+            (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR)
+        )
+        YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
+        DATABASE_CONNECTION.commit()
+
+        #append the video to the queue
+        videoQueue.append([video[0], YTDL_FORMAT, YTDL_DIR, YTDL_DL_ID])
 
     #close the database connection
     DATABASE_CONNECTION.close()
-
-    #add the video to the queue
-    videoQueue.append([YTDL_URL, YTDL_FORMAT, YTDL_DIR, YTDL_DL_ID])
 
     #return the queue page
     return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
