@@ -14,7 +14,8 @@
 #### What is coming?
 
 - Local user accounts. The old version did have authentication, however it was hidden. This program is going to be fully authenticated so that you can lock down who is using your server for downloading videos. This will prevent unwanted access to the server.
-- You will be able to "subscribe" to YouTube playlists and channels. This feature makes the server auto-download new videos when they are deteced in the playlist/channel. This feature can be very useful for archiving content, such as archiving a channel's videos automatically.
+- You will be able to "subscribe" to YouTube playlists and channels. This feature makes the server auto-download new videos when they are deteced in the playlist/channel. This feature can be very useful for archiving content, such as archiving a channel's videos automatically. There will also be an option to not download the videos that are currently there, and just download future videos.
+- Automatically encoding the video upload date into the metadata.
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Detailed error messages.
