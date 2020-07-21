@@ -158,8 +158,6 @@ def WEB_QUEUE():
                 #download the video to the browser
                 return flask.send_file(downloadedVideoFilePath, as_attachment = True)
 
-                return flask.send_file('./qr.png', attachment_filename = 'download.png')
-
             #something went wrong, it was probably the wrong link
             except IOError:
 
