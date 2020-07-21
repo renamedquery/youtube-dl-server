@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
@@ -38,6 +38,11 @@ validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'best
 
 #create the application class
 app = flask.Flask(__name__)
+
+#set up session handling
+app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_TYPE'] = 'filesystem'
+flask_session.Session(app)
 
 #set up the directory tree
 app._static_folder = './static'
@@ -278,6 +283,9 @@ def WEB_AUTH():
 
                 #the passwords didnt match, return an error at the webpage
                 return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            
+            #set up the session data [username, password]
+            flask.session['LOGGED_IN_ACCOUNT_DATA'] = [LOGIN_FORM_USERNAME, LOGIN_FORM_PASSWORD]
         
         #something went wrong, notify the user
         except:
@@ -287,6 +295,38 @@ def WEB_AUTH():
 
     #return the temprary page
     return flask.redirect(flask.url_for('WEB_INDEX'))
+
+#function to check whether or not the user is logged in (userSession should be the flask.session variable)
+def isUserLoggedIn(userSession) -> bool:
+
+    #massive try catch for this, if theres an error, assume they arent logged in
+    try:
+
+        #the user credentials
+        USERNAME = userSession['LOGGED_IN_ACCOUNT_DATA'][0]
+        PASSWORD = userSession['LOGGED_IN_ACCOUNT_DATA'][1]
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #try to get the users password that is in the database
+        passwordGetResults = DATABASE_CURSOR.execute('SELECT password FROM users WHERE username = ?', (USERNAME,)) #this tuple has to have a , at the end because of this error https://stackoverflow.com/questions/16856647/sqlite3-programmingerror-incorrect-number-of-bindings-supplied-the-current-sta
+
+        #check if the passwords match
+        if (not WZS.check_password_hash(passwordGetResults.fetchall()[0][0], PASSWORD)):
+
+            #return false since they dont match
+            return False
+        
+        #the passwords match, so return true
+        return True
+
+    #something went wrong, guess they arent logged in
+    except:
+
+        #return false (they werent logged in)
+        return False
 
 #function to download videos (returns the path of the downloaded video)
 def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
