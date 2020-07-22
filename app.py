@@ -111,13 +111,13 @@ def WEB_QUEUE():
         if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
             
             #since the directory was not in the list of valid directories, return an error
-            return flask.redirect(flask.url_for('WEB_ERROR'))
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The directory was not in the list of valid directories.')
         
         #check that the video format is valid
         if (YTDL_FORMAT.lower() not in validVideoFormats):
 
             #the format is incorrect, dont download and return an error
-            return flask.redirect(flask.url_for('WEB_ERROR'))
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
 
         #the list of youtube videos to be downloaded (normally one one, but can be multiple in the case of a playlist)
         youtubeDLVideoList = []
@@ -144,7 +144,7 @@ def WEB_QUEUE():
         except:
 
             #redirect the user to the error page
-            return flask.redirect(flask.url_for('WEB_ERROR'))
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'General error downloading the video. This site/format is probably not supported. Try using bestvideo/bestaudio if you are sure that this site is supported.')
 
         #the database connection
         DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
@@ -194,7 +194,7 @@ def WEB_QUEUE():
                 except:
 
                     #return the error page
-                    return flask.redirect(flask.url_for('WEB_ERROR'))
+                    return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Something went wrong while your video was being prepared.')
 
                     #update the database and tell it that the download was unsuccessful
                     DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', video[3]))
@@ -209,22 +209,6 @@ def WEB_QUEUE():
         #return the queue page
         return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
     
-    #the user isnt logged in
-    else:
-        
-        #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
-
-#the function to handle any requests sent to the error page (usually because a video cant be downloaded)
-@app.route('/error', methods = ['GET', 'POST'])
-def WEB_ERROR():
-
-    #check that the user is logged in
-    if (isUserLoggedIn(flask.session)):
-
-        #return the error page
-        return flask.render_template('error.html', applicationName = configData['application_name'])
-     
     #the user isnt logged in
     else:
         
