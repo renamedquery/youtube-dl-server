@@ -20,7 +20,7 @@
                             <td scope = row>{{ user[0] }}</td>
                             <td>{{ user[1] }}</td>
                             <td>
-                                <form action = '/deleteuser' method = 'POST'>
+                                <form action = "{{ url_for('WEB_DELETEUSER') }}" method = 'POST'>
                                     <input value = '{{ user[0] }}' name = 'username' class = 'hidden'>
                                     <button class = 'btn btn-danger' type = 'submit' id = 'button-submit'>Delete User</button>
                                 </form>
@@ -30,12 +30,19 @@
                 </tbody>
             </table>
         </div>
+        <form form action = "{{ url_for('WEB_ADDUSER') }}" method = 'POST'>
+            <div class = 'input-group d-flex justify-content-center'>
+                <input name = 'username' type = 'text' class = 'form-control col-lg-3 rounded' placeholder = 'New account username' autofocus>
+                <input name = 'password' type = 'text' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'New account password' autofocus>
+                <button class = 'btn btn-primary significantLeftMargin' type = 'submit' id = 'button-submit'>Create new user</button>
+            </div>
+        </form>
     </div>
     <footer>
     <div>
         <p class = 'text-muted'>
             Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
-            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a> - <a class = 'text-light' href = "{{ url_for('WEB_LOGOUT') }}">(LOG OUT)</a>
+            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a> - <a class = 'text-light' href = "{{ url_for('WEB_LOGOUT') }}">(LOG OUT)</a> - <a class = 'text-light' href = "{{ url_for('WEB_ADMIN') }}">(ADMIN)</a>
         </p>
     </div>
     </footer>

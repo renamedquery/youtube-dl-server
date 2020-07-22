@@ -68,7 +68,7 @@ def WEB_INDEX():
             try:
 
                 #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
-                if (line[0] != '#' and not line.isspace() and os.path.exists(line)):
+                if (line[0] != '#' and not line.isspace() and line != '' and os.path.exists(line)):
 
                     #add the directory to the actual list
                     downloadDirList.append(line)
@@ -333,7 +333,7 @@ def WEB_AUTH():
 
             #return an at the webpage
             print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
         
         #match the two passwords
         DATABASE_PASSWORD_HASH = databaseResults[0][0]
@@ -341,7 +341,7 @@ def WEB_AUTH():
 
             #the passwords didnt match, return an error at the webpage
             print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
                     
         #set up the session data [username, password]
         flask.session['LOGGED_IN_ACCOUNT_DATA'] = [LOGIN_FORM_USERNAME, LOGIN_FORM_PASSWORD]
@@ -351,10 +351,60 @@ def WEB_AUTH():
         
         #return an error at the webpage
         print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-        return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+        return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
     
     #return the temprary page
     return flask.redirect(flask.url_for('WEB_INDEX'))
+
+#the function to handle any requests to the add user page (only accessible by post request, by admins only)
+@app.route('/adduser', methods = ['POST'])
+def WEB_ADDUSER():
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+        #check that their privelege is 1 and not 0
+        if (str(adminPrivelegeResults) == '1'):
+
+            #get the new user data
+            NEW_USER_USERNAME = str(flask.request.form.get('username'))
+            NEW_USER_PASSWORD = str(flask.request.form.get('password'))
+
+            #check that the username isnt blank
+            if (NEW_USER_USERNAME.isspace() or NEW_USER_USERNAME == ''):
+
+                #return an error page that says the username cant be blank
+                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Users cant have a blank username.')
+            
+            #hash the users password
+            NEW_USER_PASSWORD = WZS.generate_password_hash(NEW_USER_PASSWORD)
+
+            #add the user to the database
+            DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (NEW_USER_USERNAME, NEW_USER_PASSWORD, 0))
+            DATABASE_CONNECTION.commit()
+
+            #return the the admin page so they can continue
+            return flask.redirect(flask.url_for('WEB_ADMIN'))
+        
+        #they arent an admin
+        else:
+
+            #return the home page
+            return flask.redirect(flask.url_for('WEB_INDEX'))
+
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = configData['application_name'])
 
 #the function to handle any requests to the delete user page (only accessible by post request, by admins only)
 @app.route('/deleteuser', methods = ['POST'])
@@ -385,7 +435,7 @@ def WEB_DELETEUSER():
             if (str(adminPrivelegeResults) == '1'):
 
                 #return the error page
-                return flask.render_template('autherror.html', applicationName = configData['application_name'], error = 'Failed user delete. Can not delete admins via the web interface.')
+                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'User delete failed. Can\'t delete admins via the web interface.')
             
             #delete the user
             DATABASE_CONNECTION.execute('DELETE FROM users WHERE username = ?', (user,))

@@ -4,7 +4,7 @@
     <div class = 'flex-grow-1'></div>
     <div class = 'jumbotron bg-transparent flex-grow-1'>
         <h1 class = 'display-4'>log in</h1>
-        <form action = '/auth' method = 'POST'>
+        <form action = "{{ url_for('WEB_AUTH') }}" method = 'POST'>
             <div class = 'col-lg-6 centeredForm'>
                 <input name = 'username' type = 'text' class = 'form-control' placeholder = 'Username' autofocus>
             </div>
