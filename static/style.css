@@ -6,3 +6,4 @@ div.input-group>select.custom-select {flex: 0.1 1 100px;}
 hr{border-top:1px solid transparent;}
 #history-table{font-size:13px;}
 .centeredForm{margin:0 auto;}
+.hidden{display:none;}

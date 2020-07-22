@@ -357,8 +357,8 @@ def WEB_AUTH():
     return flask.redirect(flask.url_for('WEB_INDEX'))
 
 #the function to handle any requests to the delete user page (only accessible by post request, by admins only)
-@app.route('/deleteuser/<string:user>', methods = ['POST'])
-def WEB_DELETEUSER(user):
+@app.route('/deleteuser', methods = ['POST'])
+def WEB_DELETEUSER():
 
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
@@ -373,6 +373,9 @@ def WEB_DELETEUSER(user):
 
         #check that their privelege is 1 and not 0
         if (str(adminPrivelegeResults) == '1'):
+
+            #get the username of the (soon to be) deleted user
+            user = str(flask.request.form.get('username'))
 
             #get whether or not the user they are trying to delete is an admin, admins cant be deleted via the web interface
             DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (user,))
