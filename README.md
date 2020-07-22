@@ -11,6 +11,7 @@
 - /q has been renamed to /queue so that users know what page they are at, instead of being confused by what "q" means.
 - A download progess page where you can view the status of pending, current, past, and failed downloads (the history page at /history).
 - Authentication by local user accounts, so that you can restrict who is using the application and prevent unauthorized people from using your bandwidth to download videos.
+- Specific error messages and better error handling.
 
 #### What is coming?
 
@@ -18,7 +19,6 @@
 - Automatically encoding the video upload date into the metadata.
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
-- Detailed error messages.
 - Support for downloading videos with captions.
 - Support for using multiple proxies for multiple download workers/pollers.
 
