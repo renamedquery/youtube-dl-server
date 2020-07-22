@@ -51,7 +51,8 @@ CREATE TABLE download_history (
     status INTEGER NOT NULL,
     timestamp INTEGER NOT NULL,
     format VARCHAR NOT NULL,
-    download_folder_path VARCHAR NOT NULL
+    download_folder_path VARCHAR NOT NULL,
+    actual_download_folder_path VARCHAR NOT NULL
 )
 ''') #find a way to use utc timestamps, just in case, then convert them to local on the front end
 
