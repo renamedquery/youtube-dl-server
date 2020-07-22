@@ -77,7 +77,7 @@ def WEB_INDEX():
                 print('Error parsing the directory "{}".'.format(line))
 
         #return the home page
-        return flask.render_template('index.html', applicationName = configData['application_name'], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
+        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
     
     #the user isnt logged in
     else:
@@ -201,7 +201,7 @@ def WEB_QUEUE():
         DATABASE_CONNECTION.close()
 
         #return the queue page
-        return flask.render_template('queue.html', applicationName = configData['application_name'], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
+        return flask.render_template('queue.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
     
     #the user isnt logged in
     else:
@@ -242,7 +242,7 @@ def WEB_HISTORY():
             ])
 
         #return the history page
-        return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed)
+        return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
     
     #the user isnt logged in
     else:
@@ -484,7 +484,7 @@ def WEB_ADMIN():
                 userDataForBrowser.append(userDataLine)
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = configData['application_name'], userData = userDataForBrowser)
+            return flask.render_template('admin.html', applicationName = configData['application_name'], userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
         
         #they dont have admin priveleges, just return them to the homepage
         else:

@@ -34,7 +34,7 @@
             <div class = 'input-group d-flex justify-content-center'>
                 <input name = 'new_username' type = 'text' class = 'form-control col-lg-3 rounded' placeholder = 'New account username' autofocus>
                 <input name = 'new_password' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'New account password' autofocus>
-                <input name = 'new_password_confirm' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'New account password' autofocus>
+                <input name = 'new_password_confirm' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'Confirm new account password' autofocus>
                 <button class = 'btn btn-primary significantLeftMargin' type = 'submit' id = 'button-submit'>Create new user</button>
             </div>
         </form>
@@ -43,7 +43,7 @@
     <div>
         <p class = 'text-muted'>
             Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
-            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a> - <a class = 'text-light' href = "{{ url_for('WEB_LOGOUT') }}">(LOG OUT)</a> - <a class = 'text-light' href = "{{ url_for('WEB_ADMIN') }}">(ADMIN)</a>
+            <a class = 'text-light' href = "{{ url_for('WEB_INDEX') }}">(HOME)</a> - <a class = 'text-light' href = "{{ url_for('WEB_HISTORY') }}">(HISTORY)</a> - <a class = 'text-light' href = "{{ url_for('WEB_LOGOUT') }}">(LOG OUT OF {{ username }})</a> - <a class = 'text-light' href = "{{ url_for('WEB_ADMIN') }}">(ADMIN)</a>
         </p>
     </div>
     </footer>
