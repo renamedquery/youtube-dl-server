@@ -31,7 +31,7 @@ DOWNLOAD_STATUS_COLOR_CLASSES = {
 }
 
 #the valid video formats
-validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo']
+validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo', 'best']
 
 #create the application class
 app = flask.Flask(__name__)
