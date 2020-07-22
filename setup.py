@@ -24,7 +24,7 @@ passwordConfirm = str(getpass.getpass(prompt = 'Confirm admin password: '))
 hashedPassword = WZS.generate_password_hash(password)
 
 #check that the passwords match
-if (not WZS.check_password_hash(hashedPassword, password) or not password == passwordConfirm):
+if (not WZS.check_password_hash(hashedPassword, password) or password != passwordConfirm):
 
     #the passwords didnt match, tell the user that there was an error and then quit
     print('The hashed admin password did not match the plaintext admin password, or the passwords did not match. Please check that the passwords you used match.')
