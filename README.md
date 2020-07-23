@@ -2,7 +2,7 @@
 
 #### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the pre-relase stages, so deploy it at your own risk.)
 
-![](https://i.imgur.com/qES3bkF.png?raw=true)
+![](https://i.imgur.com/qgYUeJz.png?raw=true)
 
 #### What is new in this version?
 
