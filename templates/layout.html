@@ -17,20 +17,22 @@
     </head>
     <body>
         <div id = 'parentDiv'>
-            <nav class = 'navbar navbar-expand-lg navbar-dark bg-dark'>
-                <a class = 'navbar-brand' href = "{{ url_for('WEB_INDEX') }}">youtube-dl-server</a>
-                <button class = 'navbar-toggler' type = 'button' data-toggle = 'collapse' data-target = '#navbarDropdown' aria-controls = 'navbarDropdown' aria-expanded = 'false'>
-                    <span class = 'navbar-toggler-icon'></span>
-                </button>
-                <div class = 'collapse navbar-collapse' id = 'navbarDropdown'>
-                    <div class = 'navbar-nav ml-auto'>
-                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_INDEX') }}">Home</a>
-                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_HISTORY') }}">History</a>
-                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_ADMIN') }}">Admin</a>
-                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_LOGOUT') }}">Log off {{ username }}</a>
+            {% if username|length %}
+                <nav class = 'navbar navbar-expand-lg navbar-dark bg-dark'>
+                    <a class = 'navbar-brand' href = "{{ url_for('WEB_INDEX') }}">youtube-dl-server</a>
+                    <button class = 'navbar-toggler' type = 'button' data-toggle = 'collapse' data-target = '#navbarDropdown' aria-controls = 'navbarDropdown' aria-expanded = 'false'>
+                        <span class = 'navbar-toggler-icon'></span>
+                    </button>
+                    <div class = 'collapse navbar-collapse' id = 'navbarDropdown'>
+                        <div class = 'navbar-nav ml-auto'>
+                            <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_INDEX') }}">Home</a>
+                            <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_HISTORY') }}">History</a>
+                            <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_ADMIN') }}">Admin</a>
+                            <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_LOGOUT') }}">Log off {{ username }}</a>
+                        </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+            {% endif %}
             {% block body %}
             {% endblock %}
         </div>
