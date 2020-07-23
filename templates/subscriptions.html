@@ -4,7 +4,7 @@
     <div class = 'flex-grow-1'></div>
     <div class = 'jumbotron bg-transparent flex-grow-1'>
         <h1 class = 'display-4'>subscriptions</h1>
-        <p class = 'lead'>Add, delete, and edit your subscriptions here.</p>
+        <p class = 'lead'>Add and delete your subscriptions here.</p>
         <hr class = 'my-4 hr-light'>
         <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST'>
             <div class = 'container-fluid'>
@@ -66,6 +66,32 @@
                 <input name = 'action' type = 'text' class = 'hidden' value = 'add'>
             </div>
         </form>
+        <hr class = 'my-4 hr-light'>
+        <div class = 'container-fluid'>
+            <p>Delete a subscription</p>
+            <table class = 'table-responsive-xl table-bordered table overflow-auto'>
+                <tr>
+                    <th scope = 'col'>Playlist/Channel URL</th>
+                    <th scope = 'col'>Format</th>
+                    <th scope = 'col'>Download Folder</th>
+                    <th></th>
+                </tr>
+                {% for subscription in subscriptions %}
+                    <tr>
+                        <td scope = 'row'><a href = '{{ subscription[1] }}'>{{ subscription[1] }}</a></td>
+                        <td>{{ subscription[2] }}</td>
+                        <td>{{ subscription[3] }}</td>
+                        <td>
+                            <form>
+                                <input value = 'delete' name = 'action' class = 'hidden'>
+                                <input value = '{{ subscription[0] }}' name = 'subscription_id' class = 'hidden'>
+                                <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
     <footer>
     <div>

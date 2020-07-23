@@ -471,9 +471,19 @@ def WEB_SUBSCRIPTIONS():
 
                 #alert that there was an error
                 print('Error parsing the directory "{}".'.format(line))
+        
+        #get the subscription data from the database (lines below)
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get all the data from the subscriptions table (its fine to dump it all, no sensitive data is here)
+        DATABASE_CURSOR.execute('SELECT * FROM subscriptions ORDER BY subscription_id DESC') #order by descending so that the most recent ones come first
+        databaseSubscriptionsDump = DATABASE_CURSOR.fetchall()
 
         #return the subscriptions page
-        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList)
+        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, subscriptions = databaseSubscriptionsDump)
     
     #the user isnt logged in
     else:
