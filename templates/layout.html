@@ -16,7 +16,23 @@
         <script src = "{{ url_for('static', filename = 'bootstrap-4.1.3.min.js') }}"></script>
     </head>
     <body>
-        {% block body %}
-        {% endblock %}
+        <div id = 'parentDiv'>
+            <nav class = 'navbar navbar-expand-lg navbar-dark bg-dark'>
+                <a class = 'navbar-brand' href = "{{ url_for('WEB_INDEX') }}">youtube-dl-server</a>
+                <button class = 'navbar-toggler' type = 'button' data-toggle = 'collapse' data-target = '#navbarDropdown' aria-controls = 'navbarDropdown' aria-expanded = 'false'>
+                    <span class = 'navbar-toggler-icon'></span>
+                </button>
+                <div class = 'collapse navbar-collapse' id = 'navbarDropdown'>
+                    <div class = 'navbar-nav ml-auto'>
+                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_INDEX') }}">Home</a>
+                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_HISTORY') }}">History</a>
+                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_LOGOUT') }}">Log off {{ username }}</a>
+                        <a class = 'text-light nav-item nav-link active' href = "{{ url_for('WEB_ADMIN') }}">Admin</a>
+                    </div>
+                </div>
+            </nav>
+            {% block body %}
+            {% endblock %}
+        </div>
     </body>
 </html>

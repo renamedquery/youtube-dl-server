@@ -1,6 +1,5 @@
-body {background-color: #002b36;}
-.container {height: 100vh;}
-div.input-group>select.custom-select {flex: 0.1 1 100px;}
+body{background-color: #002b36;width:100vw;height:100vh;margin:0px:padding:0px;}
+div.input-group>select.custom-select{flex: 0.1 1 100px;}
 #advancedOptionsCollapsableDiv{background-color:transparent !important;border:0px !important;}
 .card{background-color:transparent !important;border:0px !important;}
 hr{border-top:1px solid transparent;}
@@ -8,3 +7,5 @@ hr{border-top:1px solid transparent;}
 .centeredForm{margin:0 auto;}
 .hidden{display:none;}
 .significantLeftMargin{margin-left:20px !important;}
+#parentDiv{width:100vw;height:100vh;display:flex;flex-direction:column;}
+#parentDiv .container{height:100vh;flex-grow:1;}
