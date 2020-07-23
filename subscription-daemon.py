@@ -8,3 +8,5 @@ DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 #select the data from the subscriptions table
 DATABASE_CURSOR.execute('SELECT * FROM subscriptions ORDER BY subscription_id ASC')
 databaseRows = DATABASE_CURSOR.fetchall()
+
+#the rest is TODO

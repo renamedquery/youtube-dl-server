@@ -82,7 +82,7 @@
                         <td>{{ subscription[2] }}</td>
                         <td>{{ subscription[3] }}</td>
                         <td>
-                            <form>
+                            <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST'>
                                 <input value = 'delete' name = 'action' class = 'hidden'>
                                 <input value = '{{ subscription[0] }}' name = 'subscription_id' class = 'hidden'>
                                 <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Delete</button>

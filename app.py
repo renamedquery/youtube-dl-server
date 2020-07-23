@@ -557,6 +557,20 @@ def WEB_MANAGESUBSCRIPTION():
 
                 #return the error page
                 return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to use was not from a supported website.')
+        
+        #check if the action is a delete action
+        elif (ACTION_TYPE == 'delete'):
+
+            #get the form data
+            FORM_ID = str(flask.request.form.get('subscription_id'))
+
+            #delete the entry with the matching id in the subscriptions table
+            DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+            DATABASE_CONNECTION.execute('DELETE FROM subscriptions WHERE subscription_id = ?', (FORM_ID,))
+            DATABASE_CONNECTION.commit()
+
+            #return the user to the subscriptions page
+            return flask.redirect(flask.url_for('WEB_SUBSCRIPTIONS'))
 
         #the action type is unknown
         else:
