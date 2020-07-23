@@ -62,6 +62,7 @@ CREATE TABLE subscriptions (
     subscription_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     video_list_url VARCAHR NOT NULL,
     format VARCHAR NOT NULL,
+    download_dir VARCHAR NOT NULL,
     downloaded_video_list_json VARCHAR NOT NULL
 )
 ''')

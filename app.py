@@ -448,8 +448,32 @@ def WEB_SUBSCRIPTIONS():
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
 
+        #variable for the list of valid download directories
+        downloadDirList = [DEFAULT_VIDEO_DOWNLOAD_DIR]
+
+        #get the list of lines in the download-dirs.txt file
+        downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
+
+        #iterate through the list of unparsed directories and get the valid ones
+        for line in downloadDirListUnparsed:
+
+            #just in case?
+            try:
+
+                #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
+                if (line[0] != '#' and not line.isspace() and line != '' and os.path.exists(line)):
+
+                    #add the directory to the actual list
+                    downloadDirList.append(line)
+            
+            #in case something goes wrong
+            except:
+
+                #alert that there was an error
+                print('Error parsing the directory "{}".'.format(line))
+
         #return the subscriptions page
-        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList)
     
     #the user isnt logged in
     else:
@@ -474,17 +498,55 @@ def WEB_MANAGESUBSCRIPTION():
             FORM_URL = str(flask.request.form.get('url'))
             FORM_FORMAT = str(flask.request.form.get('format'))
             FORM_WHAT2DL = str(flask.request.form.get('what_videos_to_download')) #what2dl = what to download
+            FORM_DOWNLOADDIR = str(flask.request.form.get('dir'))
 
             #try to get the list of videos
             try:
 
-                return 'a'
+                #get the list of videos
+                youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
+                playlistOrChannelData = youtubeDLObject.extract_info(FORM_URL, download = False)
+
+                #check if it is a playlist/channel
+                if ('entries' in playlistOrChannelData):
+
+                    #add the subscription to the subscription table (the code below)
+
+                    #create the database connection
+                    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+                    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+                    #the list of "downloaded" videos
+                    downloadedVideos = []
+
+                    #if the user only wants the new videos to be downloaded then get a list of the past videos
+                    if (FORM_WHAT2DL == 'new'):
+                        for video in playlistOrChannelData['entries']:
+
+                            #add the webpage url
+                            downloadedVideos.append(video['webpage_url'])
+
+                    #insert the data to the database
+                    DATABASE_CURSOR.execute(
+                        'INSERT INTO subscriptions (video_list_url, format, download_dir, downloaded_video_list_json) VALUES (?, ?, ?, ?)',
+                        (FORM_URL, FORM_FORMAT, FORM_DOWNLOADDIR, json.dumps(downloadedVideos))
+                    )
+                    DATABASE_CONNECTION.commit()
+
+                    #return the user back to the subscriptions page
+                    return flask.redirect(flask.url_for('WEB_SUBSCRIPTIONS'))
+
+                #it isnt a playlist/channel
+                else:
+                    
+                    #return an error
+                    return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to subscribe to was not a playlist or channel.')
             
-            #the link was either not a playlist or was not a supported url
+            #the was not from a supported url
             except:
 
                 #return the error page
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to subscribe to was either not a playlist, or was from an unsupported site.')
+                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to use was not from a supported website.')
 
         #the action type is unknown
         else:
