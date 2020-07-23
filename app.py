@@ -445,13 +445,58 @@ def WEB_DELETEUSER():
 @app.route('/subscriptions', methods = ['GET', 'POST'])
 def WEB_SUBSCRIPTIONS():
 
-    #return the subscriptions page
-    return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #return the subscriptions page
+        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+    
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = configData['application_name'])
 
 #the function to handle any requests to the subscription manager page
 @app.route('/managesubscription', methods = ['POST'])
 def WEB_MANAGESUBSCRIPTION():
-    return 'a'
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #get the type of action that is happening
+        ACTION_TYPE = str(flask.request.form.get('action'))
+
+        #if the action type is "add" then the user is trying to add a subscription
+        if (ACTION_TYPE == 'add'):
+
+            #get the form data
+            FORM_URL = str(flask.request.form.get('url'))
+            FORM_FORMAT = str(flask.request.form.get('format'))
+            FORM_WHAT2DL = str(flask.request.form.get('what_videos_to_download')) #what2dl = what to download
+
+            #try to get the list of videos
+            try:
+
+                return 'a'
+            
+            #the link was either not a playlist or was not a supported url
+            except:
+
+                #return the error page
+                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to subscribe to was either not a playlist, or was from an unsupported site.')
+
+        #the action type is unknown
+        else:
+
+            #return the error page
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Unknown action type: "{}".'.format(ACTION_TYPE))
+
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = configData['application_name'])
 
 #the function to handle any requests to the administrator page
 @app.route('/admin', methods = ['GET', 'POST'])

@@ -5,15 +5,23 @@
     <div class = 'jumbotron bg-transparent flex-grow-1'>
         <h1 class = 'display-4'>subscriptions</h1>
         <p class = 'lead'>Add, delete, and edit your subscriptions here.</p>
-        <hr class = 'my-4'>
+        <hr class = 'my-4 hr-light'>
         <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST'>
             <div class = 'container-fluid'>
                 <p>Add a new subscription</p>
                 <div class = 'input-group d-flex justify-content-center row m-0'>
-                    <div class = 'col-lg-12 p-0'>
+                    <!--line 1-->
+                    <div class = 'col-lg-4 p-0'>
+                        Playlist/Channel URL:
+                    </div>
+                    <div class = 'col-lg-8 p-0'>
                         <input name = 'url' type = 'text' class = 'form-control col-12 rounded' placeholder = 'Playlist/Channel URL'>
                     </div>
-                    <div class = 'col-lg-6 p-0'>
+                    <!--line 2-->
+                    <div class = 'col-lg-4 p-0'>
+                        Media download format:
+                    </div>
+                    <div class = 'col-lg-8 p-0'>
                         <select class = 'custom-select form-control rounded col-12' name = 'format'>
                             <option value = 'best'>Best Audio and Video (YouTube)</option>
                             <optgroup label = 'Video'>
@@ -26,7 +34,17 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class = 'col-lg-6 p-0'>
+                    <!--line 3-->
+                    <div class = 'col-lg-4 p-0'>
+                        What videos should be downloaded:
+                    </div>
+                    <div class = 'col-lg-8 p-0'>
+                        <select class = 'custom-select form-control rounded col-12' name = 'what_videos_to_download'>
+                            <option value = 'new'>Download only new videos from now on</option>
+                            <option value = 'all'>Download all videos, from all times</option>
+                        </select>
+                    </div>
+                    <div class = 'col-lg-12 p-0'>
                         <button class = 'btn btn-primary col-12' type = 'submit' id = 'button-submit'>Create new subscription</button>
                     </div>
                 </div>

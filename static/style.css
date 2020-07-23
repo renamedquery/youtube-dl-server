@@ -9,3 +9,4 @@ hr{border-top:1px solid transparent;}
 .significantLeftMargin{margin-left:20px !important;}
 #parentDiv{width:100vw;height:100vh;display:flex;flex-direction:column;}
 #parentDiv .container{height:100vh;flex-grow:1;}
+.hr-light{background-color:white;}
