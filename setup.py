@@ -56,6 +56,16 @@ CREATE TABLE download_history (
 )
 ''') #find a way to use utc timestamps, just in case, then convert them to local on the front end
 
+#make the subscriptions table
+DATABASE_CONNECTION.execute('''
+CREATE TABLE subscriptions (
+    subscription_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    video_list_url VARCAHR NOT NULL,
+    format VARCHAR NOT NULL,
+    downloaded_video_list_json VARCHAR NOT NULL
+)
+''')
+
 #add the admin user to the database
 DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)
 DATABASE_CONNECTION.commit()

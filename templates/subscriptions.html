@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+        <h1 class = 'display-4'>subscriptions</h1>
+        <p class = 'lead'>Add, delete, and edit your subscriptions here.</p>
+        <hr class = 'my-4'>
+        <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST'>
+            <div class = 'container-fluid'>
+                <p>Add a new subscription</p>
+                <div class = 'input-group d-flex justify-content-center row m-0'>
+                    <div class = 'col-lg-12 p-0'>
+                        <input name = 'url' type = 'text' class = 'form-control col-12 rounded' placeholder = 'Playlist/Channel URL'>
+                    </div>
+                    <div class = 'col-lg-6 p-0'>
+                        <select class = 'custom-select form-control rounded col-12' name = 'format'>
+                            <option value = 'best'>Best Audio and Video (YouTube)</option>
+                            <optgroup label = 'Video'>
+                                <option value = 'bestvideo'>Best Video (YouTube)</option>
+                                <option value = 'mp4'>MP4 (YouTube)</option>
+                            </optgroup>
+                            <optgroup label = 'Audio'>
+                                <option value = 'bestaudio'>Best Audio (YouTube)</option>
+                                <option value = 'm4a'>M4A (YouTube)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class = 'col-lg-6 p-0'>
+                        <button class = 'btn btn-primary col-12' type = 'submit' id = 'button-submit'>Create new subscription</button>
+                    </div>
+                </div>
+                <input name = 'action' type = 'text' class = 'hidden' value = 'add'>
+            </div>
+        </form>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}

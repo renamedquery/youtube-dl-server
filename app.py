@@ -441,6 +441,18 @@ def WEB_DELETEUSER():
         #return the login page
         return flask.render_template('login.html', applicationName = configData['application_name'])
 
+#the function to handle any requests to the subscriptions page
+@app.route('/subscriptions', methods = ['GET', 'POST'])
+def WEB_SUBSCRIPTIONS():
+
+    #return the subscriptions page
+    return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+
+#the function to handle any requests to the subscription manager page
+@app.route('/managesubscription', methods = ['POST'])
+def WEB_MANAGESUBSCRIPTION():
+    return 'a'
+
 #the function to handle any requests to the administrator page
 @app.route('/admin', methods = ['GET', 'POST'])
 def WEB_ADMIN():
