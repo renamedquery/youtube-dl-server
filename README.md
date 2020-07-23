@@ -2,6 +2,8 @@
 
 #### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the pre-relase stages, so deploy it at your own risk.)
 
+![](https://i.imgur.com/qES3bkF.png?raw=true)
+
 #### What is new in this version?
 
 - You can now specify where to download the videos on the server you are downloading to, which helps simplifiy adding videos to media servers such as Plex or Jellyfin.
