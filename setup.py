@@ -96,7 +96,7 @@ proxiesFile.write('''
 #You can comment out entries by starting the line with a pound sign.
 #The format for this is [connection_type]:[address]:[port]
 #Example lines:
-#sock5://123.456.789.000:8192
+#socks5://123.456.789.000:8192
 #https://my.proxy.server:80
 ''')
 proxiesFile.close()
