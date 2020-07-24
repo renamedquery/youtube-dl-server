@@ -74,7 +74,7 @@ for subscription in databaseRows:
         for entry in playlistOrChannelData['entries']:
 
             #check that the video is already downloaded
-            if (entry['webpage_url'] not in playlistOrChannelData):
+            if (entry['webpage_url'] not in alreadyDownloadedVideoList):
 
                 #try to download the video
                 try:
