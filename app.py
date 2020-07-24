@@ -661,7 +661,7 @@ def WEB_ADMIN():
         else:
 
             #return the return the home page page
-            return flask.redirect(flask.url_for('WEB_INDEX'))
+            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'You aren\'t an administrator, so you can\'t access this page. Please speak to your system administrator.')
     
     #the user isnt logged in
     else:
