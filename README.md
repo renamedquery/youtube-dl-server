@@ -23,7 +23,6 @@
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions.
-- Support for using multiple proxies for multiple download workers/pollers.
 
 #### How do I set this up?
 
