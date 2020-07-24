@@ -6,7 +6,18 @@
         <h1 class = 'display-4'>subscriptions</h1>
         <p class = 'lead'>Add and delete your subscriptions here.</p>
         <hr class = 'my-4 hr-light'>
-        <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST'>
+        <div id = 'container-fluid'>
+            <div class = 'd-flex justify-content-center row m-0'>
+                <div class = 'col-lg-3 p-0'>
+                    <button onclick = 'changeVisibleSubscriptionAction(0);' class = 'btn btn-info'>Create new subscription</button>
+                </div>
+                <div class = 'col-lg-3 p-0'>
+                    <button onclick = 'changeVisibleSubscriptionAction(1);' class = 'btn btn-info'>Delete an existing subscription</button>
+                </div>
+            </div>
+        </div>
+        <hr class = 'my-4'>
+        <form action = "{{ url_for('WEB_MANAGESUBSCRIPTION') }}" method = 'POST' id = 'addSubscription'>
             <div class = 'container-fluid'>
                 <p>Add a new subscription</p>
                 <div class = 'input-group d-flex justify-content-center row m-0'>
@@ -67,8 +78,7 @@
                 <input name = 'action' type = 'text' class = 'hidden' value = 'add'>
             </div>
         </form>
-        <hr class = 'my-4 hr-light'>
-        <div class = 'container-fluid'>
+        <div class = 'container-fluid' id = 'deleteSubscription'>
             <p>Delete a subscription</p>
             <table class = 'table-responsive-xl table-bordered table overflow-auto'>
                 <tr>
@@ -102,4 +112,26 @@
     </div>
     </footer>
 </div>
+<script>
+    //the list of the subscription actions
+    subscriptionActions = ['addSubscription', 'deleteSubscription'];
+
+    //the function to change what subscription action is visible
+    function changeVisibleSubscriptionAction(index) {
+
+        //iterate through the subscription actions
+        for (action in subscriptionActions) {
+            
+            //if the subscription action doesnt equal the index (the current action that is being shown) then set the display to none
+            if (action != index) {
+                document.getElementById(subscriptionActions[action]).style.display = 'none';
+
+            //the subscription index equals the action, so make the display inline
+            } else {
+                document.getElementById(subscriptionActions[action]).style.display = 'inline';
+            }
+        }
+
+    }
+</script>
 {% endblock %}
