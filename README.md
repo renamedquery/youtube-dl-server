@@ -14,10 +14,10 @@
 - A download progess page where you can view the status of pending, current, past, and failed downloads (the history page at /history).
 - Authentication by local user accounts, so that you can restrict who is using the application and prevent unauthorized people from using your bandwidth to download videos.
 - Specific error messages and better error handling.
+- Added the ability to "subscribe" to channels/playlists, where the subscription daemon that runs in the background every x hours will download new videos in the playlist/channel. The subscriptions can be added through the /subscriptions webpage and it can be configured to run every x hours by using crontab, or another scheduling program.
 
 #### What is coming?
 
-- You will be able to "subscribe" to YouTube playlists and channels. This feature makes the server auto-download new videos when they are deteced in the playlist/channel. This feature can be very useful for archiving content, such as archiving a channel's videos automatically. There will also be an option to not download the videos that are currently there, and just download future videos.
 - Automatically encoding the video upload date into the metadata.
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
