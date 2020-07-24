@@ -75,9 +75,24 @@ def WEB_INDEX():
 
                 #alert that there was an error
                 print('Error parsing the directory "{}".'.format(line))
+        
+        #variable for the list of proxies
+        listOfProxies = []
+
+        #get the list of the lines in the proxies.txt file
+        listOfProxiesUnparsed = str(open('./proxies.txt').read()).split('\n')
+
+        #iterate through the unparsed list of proxies and get rid of the invalid entries (the ones that start with pound signs)
+        for proxy in listOfProxiesUnparsed:
+
+            #check if the proxy starts with a pound sign and it isnt whitespace
+            if (not proxy.isspace() and proxy != '' and proxy[0] != '#'):
+
+                #append the proxy to the list of proxies
+                listOfProxies.append(proxy)
 
         #return the home page
-        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR)
+        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
     
     #the user isnt logged in
     else:
@@ -100,6 +115,7 @@ def WEB_QUEUE():
         YTDL_FORMAT = str(flask.request.form.get('format'))
         YTDL_DIR = str(flask.request.form.get('directory'))
         YTDL_ORDER = str(flask.request.form.get('order'))
+        YTDL_PROXY = str(flask.request.form.get('proxy'))
 
         #get a list of the download directories to ensure that the directory is valid
         downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
@@ -121,7 +137,19 @@ def WEB_QUEUE():
 
         #get the video data
         try:
-            youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
+
+            #check if there is a proxy to be used
+            if (YTDL_PROXY == '#none'):
+
+                #no proxy, download normally
+                youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube'})
+            
+            #there is a proxy
+            else:
+
+                #use the proxy to download it
+                youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube', 'proxy':YTDL_PROXY})
+
             videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
             
             #check if it is a playlist by checking if the 'entries' key exists

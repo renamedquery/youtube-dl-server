@@ -48,6 +48,15 @@
                         <option value = 'random'>A random order</option>
                     </select>
                 </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>What proxy would you like to use? (Experimental)</p>
+                    <select class = 'custom-select col-lg-6' name = 'proxy'>
+                        <option value = '#none'>No proxy</option>
+                        {% for proxy in proxies %}
+                            <option value = '{{ proxy }}'>{{ proxy }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
         </form>
     </div>

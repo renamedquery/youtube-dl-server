@@ -89,6 +89,18 @@ downloadDirsFile.write('''
 #/media/mary/flask-drive-videos/
 ''')
 
+#make the file that contains the list of proxies
+proxiesFile = open('./proxies.txt', 'w')
+proxiesFile.write('''
+#Write the address of as many proxies as you want here. These proxies can be used to download videos through. Each proxy should be on its own line.
+#You can comment out entries by starting the line with a pound sign.
+#The format for this is [address]:[port]
+#Example lines:
+#123.456.789.000:8192
+#my.proxy.server:80
+''')
+proxiesFile.close()
+
 #tell the user information about the config
 print('Setup is complete!')
 
