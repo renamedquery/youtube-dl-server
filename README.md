@@ -1,10 +1,10 @@
 # youtube-dl-server
 
-#### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the pre-relase stages, so deploy it at your own risk.)
+#### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the beta stages, so deploy it at your own risk.)
 
-![](https://i.imgur.com/qgYUeJz.png?raw=true)
+![](https://i.imgur.com/oWHtkp1.png?raw=true)
 
-#### What is new in this version?
+## What is new in this version?
 
 - You can now specify where to download the videos on the server you are downloading to, which helps simplifiy adding videos to media servers such as Plex or Jellyfin.
 - Built in metadata tagging. The downloader will now apply the appropriate metadata to media you download (artist/author/title) so that you dont need to deal with tagging everything once its downloaded. This also helps simplify adding videos to media servers.
@@ -17,13 +17,27 @@
 - Added the ability to "subscribe" to channels/playlists, where the subscription daemon that runs in the background every x hours will download new videos in the playlist/channel. The subscriptions can be added through the /subscriptions webpage and it can be configured to run every x hours by using crontab, or another scheduling program.
 - You can use proxies for downloading videos at the home page. Currently, you can add as many proxies as you want, however I haven't been able to test this feature out. This is an experimental feature.
 
-#### What is coming?
+## What is coming?
 
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions (currently having issues with this, help would be appreciated).
 - Support for (pleasant) mobile device viewing (currently the only mobile devices that this app works on are tablets).
 
-#### How do I set this up?
+## How do I set this up?
 
-Setup instructions will be released when the program is in its first release stage. For now, too much can change, so giving instructions right now would be pointless. At the moment, the only packages you need are `ffmpeg` and `python3` (3.6+). This has only been tested on Ubuntu 18.04 and Ubuntu Server 18.04 at the moment, and it may behave differently on other Linux operating systems. Support for Windows and Mac is not a priority, since this is a server application, however the web client works perfectly on all OSes with modern browsers.
+#### Ubuntu Server Instructions:
+
+1. Run `setup.py` with Python>=3.6 (below 3.6 isn't tested yet). Make sure to use a strong password for your admin account, to ensure that nobody can log on without your permission.
+2. Once you have ran the setup program, without an error, run the Flask application by running `gunicorn3 --workers 4 --bind 0.0.0.0:80 wsgi:app`. You can change the host to `127.0.0.1` if you only want the application to work on your computer, but running it as `0.0.0.0` allows others to access the app. You can also change the port from `80` to something else; `80` is just the default (warning: port `80` may already be taken by your Apache installation). The reason this uses `gunicorn3` instead of `flask run` is because Flask is **NOT** a development server.
+
+## Having an issue?
+
+Leave an issue on the [official repo](https://github.com/katznboyz1/youtube-dl-server)!
+
+## Disclaimers
+
+- I am not a network security professional. If you run this application exposed to the internet, then you run it at your own risk. Do not use common/reused passwords for this application. I am a singular person, and there may be bugs in this program. Do not allow it to fail badly by not following common sense.
+- I am not in charge of how people use this application. I created this application for people to use, however the way that people may use it does not reflect on my original intentions/beliefs.
+- Any damages caused by this application to any party are not the responsibility of me as the creator, and they are either the responsibility of the person hosting the app, or the user of the app.
+- **READ THE LICENSE**
