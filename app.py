@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
@@ -773,43 +773,58 @@ def YTDL_POLLER():
         DATABASE_CURSOR.execute('SELECT download_id FROM download_history WHERE status = 1')
         pendingDownloads = DATABASE_CURSOR.fetchall()
 
-        #download all the videos on the queue
-        for videoID in pendingDownloads:
-            
-            #get the first index
-            videoID = videoID[0]
-            
-            #download the video
+        #check the length of the pending downloads list
+        if (len(pendingDownloads) > 0):
+
+            #update the youtube-dl package (or try to)
             try:
 
-                #updat the database and tell it that the download is happening now
-                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', videoID))
-                DATABASE_CONNECTION.commit()
-
-                #videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR
-
-                #get the data about the video id
-                DATABASE_CURSOR.execute('SELECT * FROM download_history WHERE download_id = ?', (videoID,))
-                databaseRow = DATABASE_CURSOR.fetchall()[0]
-
-                #download the video
-                downloadPath = downloadVideo(
-                    databaseRow[2], #video url
-                    databaseRow[5], #video format
-                    parentDownloadDir = databaseRow[7] #video download directory
-                )
-
-                #update the database and tell it that the download was successful
-                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', videoID))
-                DATABASE_CONNECTION.commit()
+                #update the package using pip
+                pip.main(['install', '-U', 'youtube-dl'])
             
-            #there was an error, tell the log for now, and add a way to tell the user there was an error soon
+            #it failed, just ignore it and continue without updating
             except:
-                print('Error downloading video id {}.'.format(videoID))
 
-                #update the database and tell it that the download was unsuccessful
-                DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', videoID))
-                DATABASE_CONNECTION.commit()
+                #alert the user
+                print('Failed to update youtube-dl using pip.')
+
+            #download all the videos on the queue
+            for videoID in pendingDownloads:
+                
+                #get the first index
+                videoID = videoID[0]
+                
+                #download the video
+                try:
+
+                    #updat the database and tell it that the download is happening now
+                    DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('2', videoID))
+                    DATABASE_CONNECTION.commit()
+
+                    #videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR
+
+                    #get the data about the video id
+                    DATABASE_CURSOR.execute('SELECT * FROM download_history WHERE download_id = ?', (videoID,))
+                    databaseRow = DATABASE_CURSOR.fetchall()[0]
+
+                    #download the video
+                    downloadPath = downloadVideo(
+                        databaseRow[2], #video url
+                        databaseRow[5], #video format
+                        parentDownloadDir = databaseRow[7] #video download directory
+                    )
+
+                    #update the database and tell it that the download was successful
+                    DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', videoID))
+                    DATABASE_CONNECTION.commit()
+                
+                #there was an error, tell the log for now, and add a way to tell the user there was an error soon
+                except:
+                    print('Error downloading video id {}.'.format(videoID))
+
+                    #update the database and tell it that the download was unsuccessful
+                    DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', videoID))
+                    DATABASE_CONNECTION.commit()
 
         #wait half a second
         time.sleep(0.5)
