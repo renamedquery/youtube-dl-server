@@ -186,8 +186,8 @@ def WEB_QUEUE():
         #add the videos to the database history
         for video in youtubeDLVideoList:
             DATABASE_CURSOR.execute(
-                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR)
+                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path, proxy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR, YTDL_PROXY)
             )
             YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
             DATABASE_CONNECTION.commit()
@@ -702,7 +702,7 @@ def isUserLoggedIn(userSession) -> bool:
         return False
 
 #function to download videos (returns the path of the downloaded video)
-def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
+def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, proxy = '#none') -> str:
 
     #check that the video download directory exists
     if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
@@ -713,8 +713,17 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
     tmpFileNameNumber = str(time.time())
 
-    #set up the youtube downloader object
-    youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+    #check if there is a proxy being used
+    if (proxy == '#none'):
+
+        #set up the youtube downloader object without a proxy
+        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+    
+    #there is a proxy being used
+    else:
+
+        #set up the youtube downloader object without a proxy
+        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
 
     #download the metadata so that the video can be tagged for usage with streaming servers
     youtubeVideoData = youtubeDLObject.extract_info(videoURL, download = False)
@@ -807,11 +816,14 @@ def YTDL_POLLER():
                     DATABASE_CURSOR.execute('SELECT * FROM download_history WHERE download_id = ?', (videoID,))
                     databaseRow = DATABASE_CURSOR.fetchall()[0]
 
+                    print(databaseRow)
+
                     #download the video
                     downloadPath = downloadVideo(
                         databaseRow[2], #video url
                         databaseRow[5], #video format
-                        parentDownloadDir = databaseRow[7] #video download directory
+                        parentDownloadDir = databaseRow[7], #video download directory
+                        proxy = databaseRow[8] #the proxy
                     )
 
                     #update the database and tell it that the download was successful
