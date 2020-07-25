@@ -389,7 +389,7 @@ def WEB_ADDUSER():
             if (NEW_USER_PASSWORD != NEW_USER_PASSWORD_CONFIRM):
 
                 #return an error that says the passwords dont match
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'New user passwords didn\' match.')
+                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'New user passwords didn\'t match.')
 
             #check that the username isnt blank
             if (NEW_USER_USERNAME.isspace() or NEW_USER_USERNAME == ''):
