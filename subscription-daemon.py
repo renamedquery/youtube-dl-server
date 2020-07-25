@@ -1,3 +1,5 @@
+#its reccomended to have this run just once a day, at a time when most of your users wont be online, so a good example time would be 3am
+
 #import statements
 import flask, youtube_dl, sqlite3, json, time, os
 
