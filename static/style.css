@@ -12,3 +12,4 @@ hr{border-top:1px solid transparent;}
 .hr-light{background-color:white;}
 #addSubscription{display:inline;}
 #deleteSubscription{display:none;}
+#subscriptions-table{font-size:13px;}
