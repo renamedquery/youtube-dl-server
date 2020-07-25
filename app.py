@@ -101,7 +101,7 @@ def WEB_INDEX():
         return flask.render_template('login.html', applicationName = configData['application_name']) 
 
 #the function to handle any requests sent to the queue page this is where it triggers the server to download the media
-@app.route('/queue', methods = ['GET', 'POST'])
+@app.route('/queue', methods = ['POST'])
 def WEB_QUEUE():
 
     #check that the user is logged in
