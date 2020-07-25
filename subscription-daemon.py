@@ -35,7 +35,7 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir) -> str:
     youtubeDLObject.download([videoURL])
 
     #encode the media file with the data
-    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
+    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}_{}_{}_{}.{}" -nostdin -y'.format(
         parentDownloadDir, #download directory
         tmpFileNameNumber, #filename
         youtubeVideoMetadataData['ext'], #extension
@@ -43,6 +43,9 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir) -> str:
         youtubeVideoMetadataData['uploader'], #metadata author (for video)
         youtubeVideoMetadataData['uploader'], #metadata artist (for music)
         parentDownloadDir, #download directory
+        youtubeVideoMetadataData['upload_year'], #upload year 
+        youtubeVideoMetadataData['upload_month'], #upload month
+        youtubeVideoMetadataData['upload_day'], #upload day
         youtubeVideoMetadataData['title'], #title
         youtubeVideoMetadataData['ext'] #extension
     ))
@@ -51,7 +54,8 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir) -> str:
     os.remove('{}/{}.{}'.format(parentDownloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
 
     #return the path of the video
-    return '{}/{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+    return '{}/{}_{}_{}_{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['upload_year'], youtubeVideoMetadataData['upload_month'], youtubeVideoMetadataData['upload_day'], youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+
 
 #iterate through the subscriptions
 for subscription in databaseRows:

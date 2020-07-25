@@ -727,13 +727,16 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
         'id':youtubeVideoData['id'],
         'playlist':youtubeVideoData['album'],
         'playlist_index':youtubeVideoData['playlist_index'],
+        'upload_year':str(youtubeVideoData['upload_date'])[0:4],
+        'upload_month':str(youtubeVideoData['upload_date'])[4:6],
+        'upload_day':str(youtubeVideoData['upload_date'])[6:8]
     }
 
     #download the video
     youtubeDLObject.download([videoURL])
 
     #encode the media file with the data
-    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}.{}" -nostdin -y'.format(
+    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}_{}_{}_{}.{}" -nostdin -y'.format(
         parentDownloadDir, #download directory
         tmpFileNameNumber, #filename
         youtubeVideoMetadataData['ext'], #extension
@@ -741,6 +744,9 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
         youtubeVideoMetadataData['uploader'], #metadata author (for video)
         youtubeVideoMetadataData['uploader'], #metadata artist (for music)
         parentDownloadDir, #download directory
+        youtubeVideoMetadataData['upload_year'], #upload year 
+        youtubeVideoMetadataData['upload_month'], #upload month
+        youtubeVideoMetadataData['upload_day'], #upload day
         youtubeVideoMetadataData['title'], #title
         youtubeVideoMetadataData['ext'] #extension
     ))
@@ -749,7 +755,7 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     os.remove('{}/{}.{}'.format(parentDownloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
 
     #return the path of the video
-    return '{}/{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+    return '{}/{}_{}_{}_{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['upload_year'], youtubeVideoMetadataData['upload_month'], youtubeVideoMetadataData['upload_day'], youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
 
 #def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
 
