@@ -19,7 +19,6 @@
 
 #### What is coming?
 
-- Automatically encoding the video upload date into the metadata.
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions (currently having issues with this, help would be appreciated).
