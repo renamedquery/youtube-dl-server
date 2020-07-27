@@ -11,7 +11,7 @@
 - All of the files are hosted locally. Previously, youtube-dl-server reached out to CDNs on the internet for web assets, however this new version has everything included locally. This means that you don't need to be reliant on external CDNs and you are in full control of your files.
 - This new version has error pages. The old version had no error pages, which can lead to some user confusion in the instance of a server side error.
 - /q has been renamed to /queue so that users know what page they are at, instead of being confused by what "q" means.
-- A download progess page where you can view the status of pending, current, past, and failed downloads (the history page at /history).
+- A download progess page where you can view the status of pending, current, past, and failed downloads (the history page at /history). This page refreshes live, so the status of your downloads will update every 3 seconds.
 - Authentication by local user accounts, so that you can restrict who is using the application and prevent unauthorized people from using your bandwidth to download videos.
 - Specific error messages and better error handling.
 - Added the ability to "subscribe" to channels/playlists, where the subscription daemon that runs in the background every x hours will download new videos in the playlist/channel. The subscriptions can be added through the /subscriptions webpage and it can be configured to run every x hours by using crontab, or another scheduling program.
@@ -19,7 +19,6 @@
 
 ## What is coming?
 
-- Auto refreshing on /history (priority feature, expect this soon).
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions (currently having issues with this, help would be appreciated).
