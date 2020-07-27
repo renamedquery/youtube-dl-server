@@ -113,17 +113,7 @@
 
                         rowChildElementChildTD4 = document.createElement('td'); //the download time added to queue
                         videoAddedToQueueDate = new Date(currentRow[4] * 1000); //parse the timestamp of the date that the server returns
-                        rowChildElementChildTD4.innerHTML = String(
-                            String(videoAddedToQueueDate.getMonth()) +
-                            '/' +
-                            String(videoAddedToQueueDate.getDate()) +
-                            '/' + 
-                            String(videoAddedToQueueDate.getFullYear()) +
-                            ' - ' +
-                            String(videoAddedToQueueDate.getHours()) +
-                            ':' +
-                            String(videoAddedToQueueDate.getMinutes())
-                        );
+                        rowChildElementChildTD4.innerHTML = String(videoAddedToQueueDate.toString());
 
                         rowChildElementChildTD5 = document.createElement('td'); //the download format
                         rowChildElementChildTD5.innerHTML = currentRow[5];
@@ -176,17 +166,7 @@
 
                         rowChildElementChildTD4 = document.createElement('td'); //the download time added to queue
                         videoAddedToQueueDate = new Date(currentRow[4] * 1000); //parse the timestamp of the date that the server returns
-                        rowChildElementChildTD4.innerHTML = String(
-                            String(videoAddedToQueueDate.getMonth()) +
-                            '/' +
-                            String(videoAddedToQueueDate.getDate()) +
-                            '/' + 
-                            String(videoAddedToQueueDate.getFullYear()) +
-                            ' - ' +
-                            String(videoAddedToQueueDate.getHours()) +
-                            ':' +
-                            String(videoAddedToQueueDate.getMinutes())
-                        );
+                        rowChildElementChildTD4.innerHTML = String(videoAddedToQueueDate.toString());
 
                         rowChildElementChildTD5 = document.createElement('td'); //the download format
                         rowChildElementChildTD5.innerHTML = currentRow[5];
