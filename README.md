@@ -26,6 +26,11 @@
 
 ## How do I set this up?
 
+#### Required Programs (the method of installation vaires by distro):
+
+- Python>=3.6
+- FFMPEG
+
 #### Ubuntu Server Instructions:
 
 1. Run `setup.py` with Python>=3.6 (below 3.6 isn't tested yet). Make sure to use a strong password for your admin account, to ensure that nobody can log on without your permission.
