@@ -86,114 +86,80 @@
                     //the id for the current row
                     currentRowID = String('historyTableRow_id' + String(currentRow[0]));
 
-                    //check that the element doesnt already exist (will only run the code if the id doesnt exist)
-                    if (!childNodeIDs.includes(currentRowID)) {
+                    //create the row
+                    rowParentElement = document.getElementById('historyTableRowParent');
 
-                        //create the row
-                        rowParentElement = document.getElementById('historyTableRowParent');
+                    //only create the element if the id doesnt exist
+                    if (!childNodeIDs.includes(currentRowID)) {
 
                         //create the new table row element
                         rowChildElement = document.createElement('tr');
                         rowChildElement.id = currentRowID;
+                    
+                    //if the element already exists then make it empty
+                    } else {
 
-                        //create the children elements (find a way to make this less repeat-y)
+                        //change the content of the element to "" to get rid of the html inside
+                        document.getElementById(currentRowID).innerHTML = '';
+                    }
 
-                        rowChildElementChildTD1 = document.createElement('td'); //the download title
-                        rowChildElementChildTD1.innerHTML = currentRow[1];
+                    //create the children elements (find a way to make this less repeat-y)
 
-                        rowChildElementChildTD2 = document.createElement('td'); //the download link
-                        rowChildElementChildTD2LinkChild = document.createElement('a'); //the actual link inside the download link column
-                        rowChildElementChildTD2LinkChild.innerHTML = currentRow[2];
-                        rowChildElementChildTD2LinkChild.href = currentRow[2];
-                        rowChildElementChildTD2.appendChild(rowChildElementChildTD2LinkChild);
+                    rowChildElementChildTD1 = document.createElement('td'); //the download title
+                    rowChildElementChildTD1.innerHTML = currentRow[1];
 
-                        rowChildElementChildTD3 = document.createElement('td'); //the download status
-                        rowChildElementChildTD3.innerHTML = DOWNLOAD_STATUSES[currentRow[3]]; //the text for the status
-                        rowChildElementChildTD3.classList.add(DOWNLOAD_STATUS_COLOR_CLASSES[parseInt(currentRow[3])]); //the color class for the status
+                    rowChildElementChildTD2 = document.createElement('td'); //the download link
+                    rowChildElementChildTD2LinkChild = document.createElement('a'); //the actual link inside the download link column
+                    rowChildElementChildTD2LinkChild.innerHTML = currentRow[2];
+                    rowChildElementChildTD2LinkChild.href = currentRow[2];
+                    rowChildElementChildTD2.appendChild(rowChildElementChildTD2LinkChild);
 
-                        rowChildElementChildTD4 = document.createElement('td'); //the download time added to queue
-                        videoAddedToQueueDate = new Date(currentRow[4] * 1000); //parse the timestamp of the date that the server returns
-                        rowChildElementChildTD4.innerHTML = String(videoAddedToQueueDate.toString());
+                    rowChildElementChildTD3 = document.createElement('td'); //the download status
+                    rowChildElementChildTD3.innerHTML = DOWNLOAD_STATUSES[currentRow[3]]; //the text for the status
+                    rowChildElementChildTD3.classList.add(DOWNLOAD_STATUS_COLOR_CLASSES[parseInt(currentRow[3])]); //the color class for the status
 
-                        rowChildElementChildTD5 = document.createElement('td'); //the download format
-                        rowChildElementChildTD5.innerHTML = currentRow[5];
+                    rowChildElementChildTD4 = document.createElement('td'); //the download time added to queue
+                    videoAddedToQueueDate = new Date(currentRow[4] * 1000); //parse the timestamp of the date that the server returns
+                    rowChildElementChildTD4.innerHTML = String(videoAddedToQueueDate.toString());
 
-                        rowChildElementChildTD6 = document.createElement('td'); //the download path
-                        rowChildElementChildTD6.innerHTML = currentRow[6];
+                    rowChildElementChildTD5 = document.createElement('td'); //the download format
+                    rowChildElementChildTD5.innerHTML = currentRow[5];
 
-                        //the list of the children elements (so many children here its like elementary school all over again)
-                        rowChildElementChildren = [
-                            rowChildElementChildTD1,
-                            rowChildElementChildTD2,
-                            rowChildElementChildTD3,
-                            rowChildElementChildTD4,
-                            rowChildElementChildTD5,
-                            rowChildElementChildTD6
-                        ];
+                    rowChildElementChildTD6 = document.createElement('td'); //the download path
+                    rowChildElementChildTD6.innerHTML = currentRow[6];
 
-                        //append the children to their parent element
-                        for (index in rowChildElementChildren) {
+                    //the list of the children elements (so many children here its like elementary school all over again)
+                    rowChildElementChildren = [
+                        rowChildElementChildTD1,
+                        rowChildElementChildTD2,
+                        rowChildElementChildTD3,
+                        rowChildElementChildTD4,
+                        rowChildElementChildTD5,
+                        rowChildElementChildTD6
+                    ];
+
+                    //append the children to their parent element
+                    for (index in rowChildElementChildren) {
+
+                        //if the element already doesnt exist then append the elements to the new parent
+                        if (!childNodeIDs.includes(currentRowID)) {
 
                             //append the element
                             rowChildElement.appendChild(rowChildElementChildren[index]);
-                        }
-
-                        //append the new row element to the parent
-                        rowParentElement.insertBefore(rowChildElement, rowParentElement.firstElementChild);
-
-                        //append the current id to the list of child node ids
-                        childNodeIDs.push(currentRowID);
-                    
-                    //the element already exists, so edit it
-                    } else {
-
-                        //get the element that is going to be updated/edited
-                        oldElementToBeUpdated = document.getElementById(currentRowID);
                         
-                        //the new updated element info
-                        rowChildElementChildTD1 = document.createElement('td'); //the download title
-                        rowChildElementChildTD1.innerHTML = currentRow[1];
+                        //the element already exists, append the children to the existing element
+                        } else {
 
-                        rowChildElementChildTD2 = document.createElement('td'); //the download link
-                        rowChildElementChildTD2LinkChild = document.createElement('a'); //the actual link inside the download link column
-                        rowChildElementChildTD2LinkChild.innerHTML = currentRow[2];
-                        rowChildElementChildTD2LinkChild.href = currentRow[2];
-                        rowChildElementChildTD2.appendChild(rowChildElementChildTD2LinkChild);
-
-                        rowChildElementChildTD3 = document.createElement('td'); //the download status
-                        rowChildElementChildTD3.innerHTML = DOWNLOAD_STATUSES[currentRow[3]]; //the text for the status
-                        rowChildElementChildTD3.classList.add(DOWNLOAD_STATUS_COLOR_CLASSES[parseInt(currentRow[3])]); //the color class for the status
-
-                        rowChildElementChildTD4 = document.createElement('td'); //the download time added to queue
-                        videoAddedToQueueDate = new Date(currentRow[4] * 1000); //parse the timestamp of the date that the server returns
-                        rowChildElementChildTD4.innerHTML = String(videoAddedToQueueDate.toString());
-
-                        rowChildElementChildTD5 = document.createElement('td'); //the download format
-                        rowChildElementChildTD5.innerHTML = currentRow[5];
-
-                        rowChildElementChildTD6 = document.createElement('td'); //the download path
-                        rowChildElementChildTD6.innerHTML = currentRow[6];
-
-                        //the list of the children elements (so many children here its like elementary school all over again)
-                        rowChildElementChildren = [
-                            rowChildElementChildTD1,
-                            rowChildElementChildTD2,
-                            rowChildElementChildTD3,
-                            rowChildElementChildTD4,
-                            rowChildElementChildTD5,
-                            rowChildElementChildTD6
-                        ];
-
-                        //delete the old row
-                        oldElementToBeUpdated.innerHTML = '';
-
-                        //append the (new) children to their parent element
-                        for (index in rowChildElementChildren) {
-
-                            //append the element
-                            oldElementToBeUpdated.appendChild(rowChildElementChildren[index]);
+                            //append the children
+                            document.getElementById(currentRowID).appendChild(rowChildElementChildren[index]);
                         }
                     }
+
+                    //append the new row element to the parent
+                    rowParentElement.insertBefore(rowChildElement, rowParentElement.firstElementChild);
+
+                    //append the current id to the list of child node ids
+                    childNodeIDs.push(currentRowID);
                 }
             }
 
