@@ -14,22 +14,6 @@ except FileNotFoundError:
 #the default directory for the videos to be downloaded to
 DEFAULT_VIDEO_DOWNLOAD_DIR = './downloads'
 
-#the download statuses
-DOWNLOAD_STATUSES = {
-    1:'Download Pending',
-    2:'Downloading Now',
-    3:'Downloaded',
-    4:'Download Failed'
-}
-
-#the download status color classes
-DOWNLOAD_STATUS_COLOR_CLASSES = {
-    1:'text-warning',
-    2:'text-success',
-    3:'',
-    4:'text-danger'
-}
-
 #the valid video formats
 validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo', 'best']
 
@@ -243,7 +227,11 @@ def WEB_HISTORY():
 
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
-
+        
+        #all of this code has been (temporarily) phased out with the new client side api requests being the new method 
+        #this code is still being kept in case somebody would prefer to mod their installation to not use the api and generate the webpage server side
+        #this code can also be repurposed with an option to refresh the webpage or have it only load once
+        '''
         #the database connection
         DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
@@ -268,15 +256,42 @@ def WEB_HISTORY():
                 rows[6], #download dir path
                 DOWNLOAD_STATUS_COLOR_CLASSES[rows[3]] #download color
             ])
+        '''
 
         #return the history page
-        return flask.render_template('history.html', applicationName = configData['application_name'], databaseData = databaseRowsParsed, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+        return flask.render_template('history.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
     
     #the user isnt logged in
     else:
         
         #return the login page
         return flask.render_template('login.html', applicationName = configData['application_name'])
+
+#the function to handle requests to the history pages api (for auto refreshing the page) (allow both get and post, but post is preferred)
+@app.route('/history/.json', methods = ['GET', 'POST'])
+def WEB_HISTORY_JSON():
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data about the download history
+        DATABASE_CURSOR.execute('SELECT * FROM download_history ORDER BY download_id ASC LIMIT 200') #order by ascending because of the elements being added together in a weird way
+        databaseRows = DATABASE_CURSOR.fetchall()        
+        
+        #return the data so that the page can refresh
+        return {
+            'rows':databaseRows
+        }
+    
+    #the user isnt logged in
+    else:
+
+        #return an error (return 403 forbidden error because they shouldnt be able to access it)
+        return {'error':'You are not logged in.'}, 403
 
 #the function to handle any requests to the login page
 @app.route('/login', methods = ['GET', 'POST'])
