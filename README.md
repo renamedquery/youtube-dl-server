@@ -19,6 +19,7 @@
 
 ## What is coming?
 
+- Auto refreshing on /history (priority feature, expect this soon).
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions (currently having issues with this, help would be appreciated).
