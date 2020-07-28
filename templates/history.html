@@ -63,8 +63,8 @@
             'type':'POST', //the type of request that is being made (POST)
             'success':function (response) { //the function that will be called once the request is successful
                 
-                //the rows of the database that have been dumped
-                const HISTORY_TABLE_ROWS = response['rows'];
+                //the rows of the database that have been dumped (reverse the rows, this cant be done in the sql query otherwise it only gets the first 200 results, this way it gets the latest 200 results, then reverses the order)
+                const HISTORY_TABLE_ROWS = response['rows'].reverse();
 
                 //the list of current child elements
                 const TABLE_CHILD_ELEMENTS = document.getElementById('historyTableRowParent').getElementsByTagName('tr');

@@ -280,7 +280,7 @@ def WEB_HISTORY_JSON():
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data about the download history
-        DATABASE_CURSOR.execute('SELECT * FROM download_history ORDER BY download_id ASC LIMIT 200') #order by ascending because of the elements being added together in a weird way
+        DATABASE_CURSOR.execute('SELECT * FROM download_history ORDER BY download_id DESC LIMIT 200')
         databaseRows = DATABASE_CURSOR.fetchall()        
         
         #return the data so that the page can refresh
