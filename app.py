@@ -134,6 +134,7 @@ def WEB_QUEUE():
                 #use the proxy to download it
                 youtubeDLObject = youtube_dl.YoutubeDL({'default_search':'youtube', 'proxy':YTDL_PROXY})
 
+            #get the video data for the playlist/channel/video
             videoData = youtubeDLObject.extract_info(YTDL_URL, download = False)
             
             #check if it is a playlist by checking if the 'entries' key exists
