@@ -19,6 +19,12 @@
 
 ## What is coming?
 
+#### In the works right now:
+
+- Transferring all the <form> inputs to ajax requests.
+
+#### In the future:
+
 - Docker images (planning on supporting Raspis).
 - The ability to administrate the program via Systemctl.
 - Support for downloading videos with captions (currently having issues with this, help would be appreciated).
