@@ -21,7 +21,7 @@
 
 #### In the works right now:
 
-- Transferring all the <form> inputs to ajax requests.
+- Transferring all the form inputs to ajax requests.
 
 #### In the future:
 
