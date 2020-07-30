@@ -35,17 +35,18 @@ def WEB_INDEX():
         #variable for the list of proxies
         listOfProxies = []
 
-        #get the list of the lines in the proxies.txt file
-        listOfProxiesUnparsed = str(open('./proxies.txt').read()).split('\n')
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
-        #iterate through the unparsed list of proxies and get rid of the invalid entries (the ones that start with pound signs)
-        for proxy in listOfProxiesUnparsed:
+        #get the list of proxies from the database
+        listOfProxiesFromDB = DATABASE_CURSOR.execute('SELECT proxy_url FROM proxies').fetchall()
 
-            #check if the proxy starts with a pound sign and it isnt whitespace
-            if (not proxy.isspace() and proxy != '' and proxy[0] != '#'):
+        #iterate through the proxies and turn them into the list of proxies that the template loader can use
+        for proxy in listOfProxiesFromDB:
 
-                #append the proxy to the list of proxies
-                listOfProxies.append(proxy)
+            #add it to the list of proxies
+            listOfProxies.append(proxy[0])
 
         #return the home page
         return flask.render_template('index.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
@@ -731,6 +732,16 @@ def WEB_ADMINACTION():
 
             #delete all occurences of the directory (just in case more than one has been added)
             DATABASE_CONNECTION.execute('DELETE FROM download_directories WHERE dir_path = ?', (directoryToDelete,))
+            DATABASE_CONNECTION.commit()
+        
+        #if the action type is adding a proxy
+        if (ACTION_TYPE == 'add_proxy_conn'):
+
+            #get the proxy address
+            proxyAddress = str(flask.request.form.get('proxy_addr'))
+
+            #add the proxy to the database
+            DATABASE_CONNECTION.execute('INSERT INTO proxies (proxy_url) VALUES (?)', (proxyAddress,))
             DATABASE_CONNECTION.commit()
 
         #redirect the user back to the admin page

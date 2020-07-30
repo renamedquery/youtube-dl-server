@@ -72,6 +72,19 @@
                     <input class = 'hidden' name = 'action_type' value = 'add_alt_download_dir'>
                 </form>
             </div>
+            <hr class = 'my-1'>
+            <div class = 'row justify-content-center'>
+                <p class = 'col-lg-4 my-auto'>Add a new proxy connection:</p>
+                <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST' class = 'col-lg-8'>
+                    <div class = 'input-group'>
+                        <input name = 'proxy_addr' type = 'text' class = 'form-control' placeholder = 'New proxy address (e.g.: socks5://123.456.789.987:6543)' aria-describedby = 'button-submit'>
+                        <div class = 'input-group-append'>
+                            <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Add</button>
+                        </div>
+                    </div>
+                    <input class = 'hidden' name = 'action_type' value = 'add_proxy_conn'>
+                </form>
+            </div>
             <hr class = 'my-4'>
             <p>Delete alternate download directories</p>
             <table class = 'table-responsive-xl table-bordered table overflow-auto' id = 'subscriptions-table'>

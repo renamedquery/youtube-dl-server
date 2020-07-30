@@ -83,6 +83,14 @@ CREATE TABLE app_config (
 )
 ''')
 
+#the table for the proxies
+DATABASE_CONNECTION.execute('''
+CREATE TABLE proxies (
+    proxy_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    proxy_url VARCHAR NOT NULL
+)
+''')
+
 #add the application title and default download dir into the database
 DATABASE_CONNECTION.execute('INSERT INTO app_config (config_data_title, config_data_content) VALUES (?, ?)', ('DEFAULT_DOWNLOAD_DIR', './downloads'))
 DATABASE_CONNECTION.execute('INSERT INTO app_config (config_data_title, config_data_content) VALUES (?, ?)', ('APP_TITLE', applicationName))
@@ -91,18 +99,6 @@ DATABASE_CONNECTION.commit()
 #add the admin user to the database
 DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)
 DATABASE_CONNECTION.commit()
-
-#make the file that contains the list of proxies
-proxiesFile = open('./proxies.txt', 'w')
-proxiesFile.write('''
-#Write the address of as many proxies as you want here. These proxies can be used to download videos through. Each proxy should be on its own line.
-#You can comment out entries by starting the line with a pound sign.
-#The format for this is [connection_type]:[address]:[port]
-#Example lines:
-#socks5://123.456.789.000:8192
-#https://my.proxy.server:80
-''')
-proxiesFile.close()
 
 #tell the user information about the config
 print('Setup is complete!')
