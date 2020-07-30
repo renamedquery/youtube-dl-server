@@ -58,6 +58,40 @@
                     <input class = 'hidden' name = 'action_type' value = 'add_default_download_dir'>
                 </form>
             </div>
+            <hr class = 'my-4'>
+            <div class = 'row justify-content-center'>
+                <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST' class = 'col-lg-12'>
+                    <p>Add a new alternate download directory</p>
+                    <div class = 'input-group'>
+                        <input name = 'new_download_dir' type = 'text' class = 'form-control' placeholder = 'New alternate download directory' aria-describedby = 'button-submit'>
+                        <div class = 'input-group-append'>
+                            <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Add</button>
+                        </div>
+                    </div>
+                    <input class = 'hidden' name = 'action_type' value = 'add_alt_download_dir'>
+                </form>
+            </div>
+            <!--
+            <hr class = 'my-4'>
+            <table class = 'table-responsive-xl table-bordered table overflow-auto' id = 'subscriptions-table'>
+                <tr>
+                    <th scope = 'col'>Download Directory</th>
+                    <th></th>
+                </tr>
+                {% for dir in downloadDirs %}
+                    <tr>
+                        <td>{{ dir }}</td>
+                        <td>
+                            <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST'>
+                                <input value = 'delete' name = 'action_type' class = 'hidden'>
+                                <input value = '{{ dir }}' name = 'download_dir_path' class = 'hidden'>
+                                <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            -->
         </div>
     </div>
     <footer>

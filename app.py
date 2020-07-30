@@ -620,7 +620,7 @@ def WEB_ADMIN():
                 userDataForBrowser.append(userDataLine)
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], default_download_dir = DEFAULT_VIDEO_DOWNLOAD_DIR)
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], default_download_dir = DEFAULT_VIDEO_DOWNLOAD_DIR, downloadDirs = GET_DL_DIRS())
         
         #they dont have admin priveleges, just return them to the homepage
         else:
@@ -651,7 +651,7 @@ def WEB_ADMINACTION():
         #get the form data
         ACTION_TYPE = str(flask.request.form.get('action_type'))
 
-        #if the action type is the same for adding a download directory
+        #if the action type is the same for upadting the default download directory
         if (ACTION_TYPE == 'add_default_download_dir'):
 
             #get the new default download dir
@@ -666,6 +666,22 @@ def WEB_ADMINACTION():
             #set the new default download directory
             DEFAULT_VIDEO_DOWNLOAD_DIR = newDefaultDLDir
             DATABASE_CONNECTION.execute('UPDATE app_config SET config_data_content = ? WHERE config_data_title = ?', (newDefaultDLDir, 'DEFAULT_DOWNLOAD_DIR'))
+            DATABASE_CONNECTION.commit()
+        
+        #if the action type is the same for adding a download directory
+        if (ACTION_TYPE == 'add_alt_download_dir'):
+
+            #get the new directory
+            newDLDir = str(flask.request.form.get('new_download_dir'))
+
+            #check if the directory exists
+            if (not os.path.exists(newDLDir)):
+
+                #the directory doesnt exist, reutrn an error
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory you tried to add does not exist.')
+            
+            #add the new download directory
+            DATABASE_CONNECTION.execute('INSERT INTO download_directories (dir_path) VALUES (?)', (newDLDir,))
             DATABASE_CONNECTION.commit()
 
         #redirect the user back to the admin page
