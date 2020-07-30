@@ -683,6 +683,16 @@ def WEB_ADMINACTION():
             #add the new download directory
             DATABASE_CONNECTION.execute('INSERT INTO download_directories (dir_path) VALUES (?)', (newDLDir,))
             DATABASE_CONNECTION.commit()
+        
+        #if the action type is the same for deleting a directory
+        if (ACTION_TYPE == 'delete'):
+
+            #get the directory to delete
+            directoryToDelete = str(flask.request.form.get('download_dir_path'))
+
+            #delete all occurences of the directory (just in case more than one has been added)
+            DATABASE_CONNECTION.execute('DELETE FROM download_directories WHERE dir_path = ?', (directoryToDelete,))
+            DATABASE_CONNECTION.commit()
 
         #redirect the user back to the admin page
         return flask.redirect(flask.url_for('WEB_ADMIN'))
