@@ -658,9 +658,12 @@ def WEB_ADMIN():
                 
                 #append the user data to the user data for browser list
                 userDataForBrowser.append(userDataLine)
+            
+            #get a list of the proxies
+            proxies = DATABASE_CURSOR.execute('SELECT * FROM proxies').fetchall()
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS())
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies)
         
         #they dont have admin priveleges, just return them to the homepage
         else:
@@ -742,6 +745,16 @@ def WEB_ADMINACTION():
 
             #add the proxy to the database
             DATABASE_CONNECTION.execute('INSERT INTO proxies (proxy_url) VALUES (?)', (proxyAddress,))
+            DATABASE_CONNECTION.commit()
+        
+        #if the action type is deleting a proxy
+        if (ACTION_TYPE == 'delete_proxy'):
+
+            #get the id of the proxy
+            proxyID = str(flask.request.form.get('proxy_row_id'))
+
+            #delete the proxy entry
+            DATABASE_CONNECTION.execute('DELETE FROM proxies WHERE proxy_id = ?', (proxyID,))
             DATABASE_CONNECTION.commit()
 
         #redirect the user back to the admin page
