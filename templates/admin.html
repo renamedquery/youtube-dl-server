@@ -9,6 +9,7 @@
         <div class = 'd-flex justify-content-center row m-0'>
             <button onclick = 'changeVisibleAdminAction(0);' class = 'btn btn-info m-3'>Delete/Create a User</button>
             <button onclick = 'changeVisibleAdminAction(1);' class = 'btn btn-info m-3'>Edit App Settings</button>
+            <button onclick = 'changeVisibleAdminAction(2);' class = 'btn btn-info m-3'>Manage Data</button>
         </div>
         <div id = 'editCreateUser' class = 'togglePageViewSelection'>
             <div>
@@ -92,6 +93,11 @@
                 {% endfor %}
             </table>
         </div>
+        <div id = 'manageData', class = 'togglePageViewSelection'>
+            <form action = "{{ url_for('WEB_HISTORYCLR') }}" method = 'POST'>
+                <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Clear download history</button>
+            </form>
+        </div>
     </div>
     <footer>
     <div>
@@ -103,7 +109,7 @@
 </div>
 <script>
     //the list of the subscription actions
-    adminActions = ['editCreateUser', 'editAppSettings'];
+    adminActions = ['editCreateUser', 'editAppSettings', 'manageData'];
 
     //the function to change what subscription action is visible
     function changeVisibleAdminAction(index) {

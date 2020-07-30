@@ -266,6 +266,45 @@ def WEB_HISTORY_JSON():
         #return an error (return 403 forbidden error because they shouldnt be able to access it)
         return {'error':'You are not logged in.'}, 403
 
+#the function to handle any requests to the history clear page
+@app.route('/historyclr', methods = ['POST'])
+def WEB_HISTORYCLR():
+    
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+        
+        #check that they are an admin
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+        
+        #check that their privelege is 1 and not 0 (means they are an admin)
+        if (str(adminPrivelegeResults) == '1'):
+
+            #delete all the history table rows
+            DATABASE_CONNECTION.execute('DELETE FROM download_history')
+            DATABASE_CONNECTION.commit()
+            
+            #redirect the user to the admin page
+            return flask.redirect(flask.url_for('WEB_ADMIN'))
+
+        #they arent an admin
+        else:
+
+            #return an error
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'You do not have permission to clear the history.')
+    
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+
 #the function to handle any requests to the login page
 @app.route('/login', methods = ['GET', 'POST'])
 def WEB_LOGIN():
