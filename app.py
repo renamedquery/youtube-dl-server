@@ -620,7 +620,7 @@ def WEB_ADMIN():
                 userDataForBrowser.append(userDataLine)
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], default_download_dir = DEFAULT_VIDEO_DOWNLOAD_DIR, downloadDirs = GET_DL_DIRS())
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS())
         
         #they dont have admin priveleges, just return them to the homepage
         else:
