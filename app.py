@@ -620,13 +620,56 @@ def WEB_ADMIN():
                 userDataForBrowser.append(userDataLine)
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], default_download_dir = DEFAULT_VIDEO_DOWNLOAD_DIR)
         
         #they dont have admin priveleges, just return them to the homepage
         else:
 
             #return the return the home page page
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'You aren\'t an administrator, so you can\'t access this page. Please speak to your system administrator.')
+    
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+
+#function to handle requests to the admin action page
+@app.route('/adminaction', methods = ['POST'])
+def WEB_ADMINACTION():
+
+    #import the global download dir variable since it will be changed
+    global DEFAULT_VIDEO_DOWNLOAD_DIR
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the form data
+        ACTION_TYPE = str(flask.request.form.get('action_type'))
+
+        #if the action type is the same for adding a download directory
+        if (ACTION_TYPE == 'add_default_download_dir'):
+
+            #get the new default download dir
+            newDefaultDLDir = str(flask.request.form.get('default_download_dir'))
+
+            #check that the directory exists
+            if (not os.path.exists(newDefaultDLDir)):
+                
+                #the directory doesnt exist, return an error
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory you tried to set as the new default download directory does not exist.')
+            
+            #set the new default download directory
+            DEFAULT_VIDEO_DOWNLOAD_DIR = newDefaultDLDir
+            DATABASE_CONNECTION.execute('UPDATE app_config SET config_data_content = ? WHERE config_data_title = ?', (newDefaultDLDir, 'DEFAULT_DOWNLOAD_DIR'))
+            DATABASE_CONNECTION.commit()
+
+        #redirect the user back to the admin page
+        return flask.redirect(flask.url_for('WEB_ADMIN'))
     
     #the user isnt logged in
     else:

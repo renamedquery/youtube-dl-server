@@ -5,8 +5,9 @@
     <div class = 'jumbotron bg-transparent flex-grow-1'>
         <h1 class = 'display-4'>administrator settings</h1>
         <p class = 'lead'>You can change the settings for your youtube-dl-server installation here. This is where you manage/add/delete users, as well as edit the server configuration.</p>
+        <hr class = 'my-4 hr-light'>
         <div class = 'd-flex justify-content-center row m-0'>
-            <button onclick = 'changeVisibleAdminAction(0);' class = 'btn btn-info m-3'>Edit/Create a User</button>
+            <button onclick = 'changeVisibleAdminAction(0);' class = 'btn btn-info m-3'>Delete/Create a User</button>
             <button onclick = 'changeVisibleAdminAction(1);' class = 'btn btn-info m-3'>Edit App Settings</button>
         </div>
         <div id = 'editCreateUser' class = 'togglePageViewSelection'>
@@ -45,7 +46,18 @@
             </form>
         </div>
         <div id = 'editAppSettings' class = 'togglePageViewSelection'>
-            aaa
+            <div class = 'row justify-content-center'>
+                <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST' class = 'col-lg-12'>
+                    <p>Current default download directory: <code>{{ default_download_dir }}</code></p>
+                    <div class = 'input-group'>
+                        <input name = 'default_download_dir' type = 'text' class = 'form-control' placeholder = 'New default download directory' aria-describedby = 'button-submit'>
+                        <div class = 'input-group-append'>
+                            <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Update</button>
+                        </div>
+                    </div>
+                    <input class = 'hidden' name = 'action_type' value = 'add_default_download_dir'>
+                </form>
+            </div>
         </div>
     </div>
     <footer>
