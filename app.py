@@ -3,8 +3,12 @@ import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, 
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
+#make a connection to the database
+DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
 #the default directory for the videos to be downloaded to
-DEFAULT_VIDEO_DOWNLOAD_DIR = './downloads'
+DEFAULT_VIDEO_DOWNLOAD_DIR = DATABASE_CURSOR.execute('SELECT config_data_content FROM app_config WHERE config_data_title = ?', ('DEFAULT_DOWNLOAD_DIR',)).fetchall()[0][0]
 
 #the valid video formats
 validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo', 'best']
