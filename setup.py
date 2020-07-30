@@ -68,6 +68,14 @@ CREATE TABLE subscriptions (
 )
 ''')
 
+#the table for the list of download directories
+DATABASE_CONNECTION.execute('''
+CREATE TABLE download_directories (
+    dir_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    dir_path VARCHAR NOT NULL
+)
+''')
+
 #add the admin user to the database
 DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)
 DATABASE_CONNECTION.commit()

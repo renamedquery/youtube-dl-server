@@ -35,30 +35,6 @@ def WEB_INDEX():
 
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
-
-        #variable for the list of valid download directories
-        downloadDirList = []
-
-        #get the list of lines in the download-dirs.txt file
-        downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
-
-        #iterate through the list of unparsed directories and get the valid ones
-        for line in downloadDirListUnparsed:
-
-            #just in case?
-            try:
-
-                #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
-                if (line[0] != '#' and not line.isspace() and line != '' and os.path.exists(line)):
-
-                    #add the directory to the actual list
-                    downloadDirList.append(line)
-            
-            #in case something goes wrong
-            except:
-
-                #alert that there was an error
-                print('Error parsing the directory "{}".'.format(line))
         
         #variable for the list of proxies
         listOfProxies = []
@@ -76,7 +52,7 @@ def WEB_INDEX():
                 listOfProxies.append(proxy)
 
         #return the home page
-        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
+        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
     
     #the user isnt logged in
     else:
@@ -492,29 +468,6 @@ def WEB_SUBSCRIPTIONS():
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
 
-        #variable for the list of valid download directories
-        downloadDirList = [DEFAULT_VIDEO_DOWNLOAD_DIR]
-
-        #get the list of lines in the download-dirs.txt file
-        downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
-
-        #iterate through the list of unparsed directories and get the valid ones
-        for line in downloadDirListUnparsed:
-
-            #just in case?
-            try:
-
-                #check that the directory is valid (doesnt start with #, isnt whitespace, and is a real directory)
-                if (line[0] != '#' and not line.isspace() and line != '' and os.path.exists(line)):
-
-                    #add the directory to the actual list
-                    downloadDirList.append(line)
-            
-            #in case something goes wrong
-            except:
-
-                #alert that there was an error
-                print('Error parsing the directory "{}".'.format(line))
         
         #get the subscription data from the database (lines below)
 
@@ -527,7 +480,7 @@ def WEB_SUBSCRIPTIONS():
         databaseSubscriptionsDump = DATABASE_CURSOR.fetchall()
 
         #return the subscriptions page
-        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = downloadDirList, subscriptions = databaseSubscriptionsDump)
+        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(get_default = True), subscriptions = databaseSubscriptionsDump)
     
     #the user isnt logged in
     else:
@@ -782,7 +735,39 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #return the path of the video
     return '{}/{}_{}_{}_{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['upload_year'], youtubeVideoMetadataData['upload_month'], youtubeVideoMetadataData['upload_day'], youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
 
-#def downloadVideo(videoURL, videoFormat, videoID, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR) -> str:
+#function to get the download directories
+def GET_DL_DIRS(get_default = False) -> list:
+
+    #connect to the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #get the list of directories that can be downloaded to
+    downloadDirsFromDB = DATABASE_CURSOR.execute('SELECT * FROM download_directories').fetchall()
+
+    #the list of directories to be sent to the webpage
+    downloadDirList = []
+
+    #check if the user wants to get the default dir
+    if (get_default):
+
+        #append the default download dir to the list
+        downloadDirList.append(DEFAULT_VIDEO_DOWNLOAD_DIR)
+
+    #iterate through the database entries and validate all the entires
+    for row in downloadDirsFromDB:
+
+        #the actual path
+        rowPath = row[1]
+
+        #check if the path exists
+        if (os.path.exists(rowPath)):
+
+            #add the path to the list of download dirs now that its confirmed that it exists
+            downloadDirList.append(rowPath)
+    
+    #return the download dirs
+    return downloadDirList
 
 #function to poll for new videos and then download them
 def YTDL_POLLER():
