@@ -13,3 +13,4 @@ hr{border-top:1px solid transparent;}
 #addSubscription{display:inline;}
 #deleteSubscription{display:none;}
 #subscriptions-table{font-size:13px;}
+.togglePageViewSelection{display:none;}

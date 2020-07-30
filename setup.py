@@ -2,10 +2,8 @@
 import json, sqlite3, os, getpass
 import werkzeug.security as WZS
 
-#save the details to a config file
-configFileData = {
-    'application_name':str(input('What would you like your youtube-dl-server application to be named? '))
-}
+#get the name of the application
+applicationName = str(input('What would you like your youtube-dl-server application to be named? '))
 
 #check if there is already a database
 if (os.path.exists('./youtube-dl-server-database.db')):
@@ -76,14 +74,23 @@ CREATE TABLE download_directories (
 )
 ''')
 
+#the table for misc setup information
+DATABASE_CONNECTION.execute('''
+CREATE TABLE app_config (
+    config_data_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    config_data_title VARCHAR NOT NULL,
+    config_data_content VARCHAR NOT NULL
+)
+''')
+
+#add the application title and default download dir into the database
+DATABASE_CONNECTION.execute('INSERT INTO app_config (config_data_title, config_data_content) VALUES (?, ?)', ('DEFAULT_DOWNLOAD_DIR', './downloads'))
+DATABASE_CONNECTION.execute('INSERT INTO app_config (config_data_title, config_data_content) VALUES (?, ?)', ('APP_TITLE', applicationName))
+DATABASE_CONNECTION.commit()
+
 #add the admin user to the database
 DATABASE_CONNECTION.execute('INSERT INTO users (username, password, admin) VALUES (?, ?, ?)', (username, hashedPassword, 1)) #1 because admin is either 0 (not admin) or 1 (admin)
 DATABASE_CONNECTION.commit()
-
-#write the config file
-configFile = open('./config.json', 'w')
-configFile.write(json.dumps(configFileData))
-configFile.close()
 
 #make the file that contains the list of proxies
 proxiesFile = open('./proxies.txt', 'w')

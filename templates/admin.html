@@ -4,40 +4,49 @@
     <div class = 'flex-grow-1'></div>
     <div class = 'jumbotron bg-transparent flex-grow-1'>
         <h1 class = 'display-4'>administrator settings</h1>
-        <p class = 'lead'>You can change the settings for your youtube-dl-server installation here. This is where you manage/add/delete users.</p>
-        <div>
-            <table class = 'table-responsive-xl table table-bordered overflow-auto' id = 'history-table'>
-                <thead>
-                    <tr>
-                        <th scope = 'col'>Username</th>
-                        <th scope = 'col'>Is Admin</th>
-                        <th scole = 'col'>Options</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in userData %}
-                        <tr>
-                            <td scope = row>{{ user[0] }}</td>
-                            <td>{{ user[1] }}</td>
-                            <td>
-                                <form action = "{{ url_for('WEB_DELETEUSER') }}" method = 'POST'>
-                                    <input value = '{{ user[0] }}' name = 'username' class = 'hidden'>
-                                    <button class = 'btn btn-danger' type = 'submit' id = 'button-submit'>Delete User</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <p class = 'lead'>You can change the settings for your youtube-dl-server installation here. This is where you manage/add/delete users, as well as edit the server configuration.</p>
+        <div class = 'd-flex justify-content-center row m-0'>
+            <button onclick = 'changeVisibleAdminAction(0);' class = 'btn btn-info m-3'>Edit/Create a User</button>
+            <button onclick = 'changeVisibleAdminAction(1);' class = 'btn btn-info m-3'>Edit App Settings</button>
         </div>
-        <form form action = "{{ url_for('WEB_ADDUSER') }}" method = 'POST' autocomplete = 'off'>
-            <div class = 'input-group d-flex justify-content-center'>
-                <input name = 'new_username' type = 'text' class = 'form-control col-lg-3 rounded' placeholder = 'New account username'>
-                <input name = 'new_password' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'New account password'>
-                <input name = 'new_password_confirm' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'Confirm new account password'>
-                <button class = 'btn btn-primary significantLeftMargin' type = 'submit' id = 'button-submit'>Create new user</button>
+        <div id = 'editCreateUser' class = 'togglePageViewSelection'>
+            <div>
+                <table class = 'table-responsive-xl table table-bordered overflow-auto' id = 'history-table'>
+                    <thead>
+                        <tr>
+                            <th scope = 'col'>Username</th>
+                            <th scope = 'col'>Is Admin</th>
+                            <th scole = 'col'>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in userData %}
+                            <tr>
+                                <td scope = row>{{ user[0] }}</td>
+                                <td>{{ user[1] }}</td>
+                                <td>
+                                    <form action = "{{ url_for('WEB_DELETEUSER') }}" method = 'POST'>
+                                        <input value = '{{ user[0] }}' name = 'username' class = 'hidden'>
+                                        <button class = 'btn btn-danger' type = 'submit' id = 'button-submit'>Delete User</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </form>
+            <form form action = "{{ url_for('WEB_ADDUSER') }}" method = 'POST' autocomplete = 'off'>
+                <div class = 'input-group d-flex justify-content-center'>
+                    <input name = 'new_username' type = 'text' class = 'form-control col-lg-3 rounded' placeholder = 'New account username'>
+                    <input name = 'new_password' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'New account password'>
+                    <input name = 'new_password_confirm' type = 'password' class = 'form-control col-lg-3 rounded significantLeftMargin' placeholder = 'Confirm new account password'>
+                    <button class = 'btn btn-primary significantLeftMargin' type = 'submit' id = 'button-submit'>Create new user</button>
+                </div>
+            </form>
+        </div>
+        <div id = 'editAppSettings' class = 'togglePageViewSelection'>
+            aaa
+        </div>
     </div>
     <footer>
     <div>
@@ -47,4 +56,29 @@
     </div>
     </footer>
 </div>
+<script>
+    //the list of the subscription actions
+    adminActions = ['editCreateUser', 'editAppSettings'];
+
+    //the function to change what subscription action is visible
+    function changeVisibleAdminAction(index) {
+
+        //iterate through the subscription actions
+        for (action in adminActions) {
+            
+            //if the subscription action doesnt equal the index (the current action that is being shown) then set the display to none
+            if (action != index) {
+                document.getElementById(adminActions[action]).style.display = 'none';
+
+            //the subscription index equals the action, so make the display inline
+            } else {
+                document.getElementById(adminActions[action]).style.display = 'inline';
+            }
+        }
+
+    }
+
+    //call the function to load the content initially (load the first element)
+    changeVisibleAdminAction(0);
+</script>
 {% endblock %}

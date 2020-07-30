@@ -3,14 +3,6 @@ import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, 
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
-#try to import the config file
-try:
-    configData = json.loads(str(open('./config.json').read()))
-#the config file does not exist, tell the user to run setup.py and then exit
-except FileNotFoundError:
-    print('No config file was detected. Are you running in the correct directory? Did you run setup.py?')
-    exit()
-
 #the default directory for the videos to be downloaded to
 DEFAULT_VIDEO_DOWNLOAD_DIR = './downloads'
 
@@ -52,13 +44,13 @@ def WEB_INDEX():
                 listOfProxies.append(proxy)
 
         #return the home page
-        return flask.render_template('index.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
+        return flask.render_template('index.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
     
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name']) 
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE()) 
 
 #the function to handle any requests sent to the queue page this is where it triggers the server to download the media
 @app.route('/queue', methods = ['POST'])
@@ -84,13 +76,13 @@ def WEB_QUEUE():
         if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
             
             #since the directory was not in the list of valid directories, return an error
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The directory was not in the list of valid directories.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory was not in the list of valid directories.')
         
         #check that the video format is valid
         if (YTDL_FORMAT.lower() not in validVideoFormats):
 
             #the format is incorrect, dont download and return an error
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
 
         #the list of youtube videos to be downloaded (normally one one, but can be multiple in the case of a playlist)
         youtubeDLVideoList = []
@@ -130,7 +122,7 @@ def WEB_QUEUE():
         except:
 
             #redirect the user to the error page
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'General error downloading the video. This site/format is probably not supported. Try using bestvideo/bestaudio if you are sure that this site is supported.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'General error downloading the video. This site/format is probably not supported. Try using bestvideo/bestaudio if you are sure that this site is supported.')
 
         #the database connection
         DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
@@ -180,7 +172,7 @@ def WEB_QUEUE():
                 except IOError:
 
                     #return the error page
-                    return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Something went wrong while your video was being prepared.')
+                    return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Something went wrong while your video was being prepared.')
 
                     #update the database and tell it that the download was unsuccessful
                     DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('4', video[3]))
@@ -190,13 +182,13 @@ def WEB_QUEUE():
         DATABASE_CONNECTION.close()
 
         #return the queue page
-        return flask.render_template('queue.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
+        return flask.render_template('queue.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
     
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the download history page
 @app.route('/history', methods = ['GET', 'POST'])
@@ -236,13 +228,13 @@ def WEB_HISTORY():
         '''
 
         #return the history page
-        return flask.render_template('history.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+        return flask.render_template('history.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
     
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle requests to the history pages api (for auto refreshing the page) (allow both get and post, but post is preferred)
 @app.route('/history/.json', methods = ['GET', 'POST'])
@@ -275,7 +267,7 @@ def WEB_HISTORY_JSON():
 def WEB_LOGIN():
 
     #return the login page
-    return flask.render_template('login.html', applicationName = configData['application_name'])
+    return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the logout page
 @app.route('/logout', methods = ['GET', 'POST'])
@@ -331,7 +323,7 @@ def WEB_AUTH():
 
             #return an at the webpage
             print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
         
         #match the two passwords
         DATABASE_PASSWORD_HASH = databaseResults[0][0]
@@ -339,7 +331,7 @@ def WEB_AUTH():
 
             #the passwords didnt match, return an error at the webpage
             print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
                     
         #set up the session data [username, password]
         flask.session['LOGGED_IN_ACCOUNT_DATA'] = [LOGIN_FORM_USERNAME, LOGIN_FORM_PASSWORD]
@@ -349,7 +341,7 @@ def WEB_AUTH():
         
         #return an error at the webpage
         print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-        return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Invalid username or password. Login failed.')
+        return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
     
     #return the temprary page
     return flask.redirect(flask.url_for('WEB_INDEX'))
@@ -381,13 +373,13 @@ def WEB_ADDUSER():
             if (NEW_USER_PASSWORD != NEW_USER_PASSWORD_CONFIRM):
 
                 #return an error that says the passwords dont match
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'New user passwords didn\'t match.')
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'New user passwords didn\'t match.')
 
             #check that the username isnt blank
             if (NEW_USER_USERNAME.isspace() or NEW_USER_USERNAME == ''):
 
                 #return an error page that says the username cant be blank
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Users cant have a blank username.')
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Users cant have a blank username.')
             
             #hash the users password
             NEW_USER_PASSWORD = WZS.generate_password_hash(NEW_USER_PASSWORD)
@@ -409,7 +401,7 @@ def WEB_ADDUSER():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the delete user page (only accessible by post request, by admins only)
 @app.route('/deleteuser', methods = ['POST'])
@@ -440,7 +432,7 @@ def WEB_DELETEUSER():
             if (str(adminPrivelegeResults) == '1'):
 
                 #return the error page
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'User delete failed. Can\'t delete admins via the web interface.')
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'User delete failed. Can\'t delete admins via the web interface.')
             
             #delete the user
             DATABASE_CONNECTION.execute('DELETE FROM users WHERE username = ?', (user,))
@@ -459,7 +451,7 @@ def WEB_DELETEUSER():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the subscriptions page
 @app.route('/subscriptions', methods = ['GET', 'POST'])
@@ -480,13 +472,13 @@ def WEB_SUBSCRIPTIONS():
         databaseSubscriptionsDump = DATABASE_CURSOR.fetchall()
 
         #return the subscriptions page
-        return flask.render_template('subscriptions.html', applicationName = configData['application_name'], username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(get_default = True), subscriptions = databaseSubscriptionsDump)
+        return flask.render_template('subscriptions.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(get_default = True), subscriptions = databaseSubscriptionsDump)
     
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the subscription manager page
 @app.route('/managesubscription', methods = ['POST'])
@@ -547,13 +539,13 @@ def WEB_MANAGESUBSCRIPTION():
                 else:
                     
                     #return an error
-                    return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to subscribe to was not a playlist or channel.')
+                    return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The link you tried to subscribe to was not a playlist or channel.')
             
             #the was not from a supported url
             except:
 
                 #return the error page
-                return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'The link you tried to use was not from a supported website.')
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The link you tried to use was not from a supported website.')
         
         #check if the action is a delete action
         elif (ACTION_TYPE == 'delete'):
@@ -573,13 +565,13 @@ def WEB_MANAGESUBSCRIPTION():
         else:
 
             #return the error page
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'Unknown action type: "{}".'.format(ACTION_TYPE))
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Unknown action type: "{}".'.format(ACTION_TYPE))
 
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #the function to handle any requests to the administrator page
 @app.route('/admin', methods = ['GET', 'POST'])
@@ -624,19 +616,19 @@ def WEB_ADMIN():
                 userDataForBrowser.append(userDataLine)
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = configData['application_name'], userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
         
         #they dont have admin priveleges, just return them to the homepage
         else:
 
             #return the return the home page page
-            return flask.render_template('error2.html', applicationName = configData['application_name'], error = 'You aren\'t an administrator, so you can\'t access this page. Please speak to your system administrator.')
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'You aren\'t an administrator, so you can\'t access this page. Please speak to your system administrator.')
     
     #the user isnt logged in
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = configData['application_name'])
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
 #function to check whether or not the user is logged in (userSession should be the flask.session['LOGGED_IN_ACCOUNT_DATA'] variable)
 def isUserLoggedIn(userSession) -> bool:
@@ -734,6 +726,19 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
 
     #return the path of the video
     return '{}/{}_{}_{}_{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['upload_year'], youtubeVideoMetadataData['upload_month'], youtubeVideoMetadataData['upload_day'], youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+
+#function to get the app's title (advantage of this to the older method is that the app title can be updated without a restart)
+def GET_APP_TITLE() -> str:
+
+    #connect to the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #get the app title
+    appTitle = DATABASE_CURSOR.execute('SELECT config_data_content FROM app_config WHERE config_data_title = ?', ('APP_TITLE',)).fetchall()[0][0]
+
+    #return the app title
+    return appTitle
 
 #function to get the download directories
 def GET_DL_DIRS(get_default = False) -> list:
