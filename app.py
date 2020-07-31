@@ -663,7 +663,7 @@ def WEB_ADMIN():
             proxies = DATABASE_CURSOR.execute('SELECT * FROM proxies').fetchall()
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies)
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies, defaultDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR)
         
         #they dont have admin priveleges, just return them to the homepage
         else:
@@ -755,6 +755,16 @@ def WEB_ADMINACTION():
 
             #delete the proxy entry
             DATABASE_CONNECTION.execute('DELETE FROM proxies WHERE proxy_id = ?', (proxyID,))
+            DATABASE_CONNECTION.commit()
+        
+        #if the action type is updating the app title
+        if (ACTION_TYPE == 'edit_server_title'):
+
+            #get the new title
+            newServerTitle = str(flask.request.form.get('new_server_title'))
+
+            #update the server title in the database
+            DATABASE_CONNECTION.execute('UPDATE app_config SET config_data_content = ? WHERE config_data_title = ?', (newServerTitle, 'APP_TITLE'))
             DATABASE_CONNECTION.commit()
 
         #redirect the user back to the admin page

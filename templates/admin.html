@@ -51,7 +51,7 @@
                 <p class = 'col-lg-4 my-auto'>Edit the default download directory:</p>
                 <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST' class = 'col-lg-8'>
                     <div class = 'input-group'>
-                        <input name = 'default_download_dir' type = 'text' class = 'form-control' placeholder = 'New default download directory' aria-describedby = 'button-submit'>
+                        <input name = 'default_download_dir' type = 'text' class = 'form-control' placeholder = 'New default download directory' aria-describedby = 'button-submit' value = '{{ defaultDownloadDir }}'>
                         <div class = 'input-group-append'>
                             <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Update</button>
                         </div>
@@ -83,6 +83,19 @@
                         </div>
                     </div>
                     <input class = 'hidden' name = 'action_type' value = 'add_proxy_conn'>
+                </form>
+            </div>
+            <hr class = 'my-1'>
+            <div class = 'row justify-content-center'>
+                <p class = 'col-lg-4 my-auto'>Edit the title of your server:</p>
+                <form action = "{{ url_for('WEB_ADMINACTION') }}" method = 'POST' class = 'col-lg-8'>
+                    <div class = 'input-group'>
+                        <input name = 'new_server_title' type = 'text' class = 'form-control' placeholder = 'New server title' aria-describedby = 'button-submit' value = '{{ applicationName }}'>
+                        <div class = 'input-group-append'>
+                            <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Update</button>
+                        </div>
+                    </div>
+                    <input class = 'hidden' name = 'action_type' value = 'edit_server_title'>
                 </form>
             </div>
             <hr class = 'my-4'>
