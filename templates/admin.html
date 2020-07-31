@@ -140,7 +140,7 @@
             </table>
         </div>
         <div id = 'manageData', class = 'togglePageViewSelection'>
-            <form action = "{{ url_for('WEB_HISTORYCLR') }}" method = 'POST'>
+            <form action = "{{ url_for('WEB_HISTORYCLR') }}" method = 'POST' onsubmit = "return confirm('Are you sure you want to delete the download history?');">
                 <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Clear download history</button>
             </form>
         </div>
