@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
@@ -84,7 +84,7 @@ def WEB_QUEUE():
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory was not in the list of valid directories.')
         
         #check that the video format is valid
-        if (YTDL_FORMAT.lower() not in validVideoFormats):
+        if (YTDL_FORMAT.lower() not in [*validVideoFormats, '#default']):
 
             #the format is incorrect, dont download and return an error
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
@@ -823,55 +823,110 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #check if there is a proxy being used
     if (proxy == '#none'):
 
-        #set up the youtube downloader object without a proxy
-        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+        #check if the video download format is default (#default)
+        if (videoFormat == '#default'):
+
+            #the format is the default, dont include it
+            youtubeDLObject = youtube_dl.YoutubeDL({'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+        
+        #the format is something custom
+        else:
+
+            #set up the youtube downloader object without a proxy
+            youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
     
     #there is a proxy being used
     else:
 
-        #set up the youtube downloader object without a proxy
-        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
+        #check if the video download format is the default format
+        if (videoFormat == '#default'):
+
+            #set up the youtube downloader object with a proxy
+            youtubeDLObject = youtube_dl.YoutubeDL({'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
+
+        #the format is custom
+        else:
+
+            #set up the youtube downloader object with a proxy
+            youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
 
     #download the metadata so that the video can be tagged for usage with streaming servers
     youtubeVideoData = youtubeDLObject.extract_info(videoURL, download = False)
     
-    #get the data that is needed (this isnt a nessecary step, but it makes the code easier to work with)
-    youtubeVideoMetadataData = {
-        'ext':youtubeVideoData['ext'],
-        'title':youtubeVideoData['title'],
-        'uploader':youtubeVideoData['uploader'],
-        'id':youtubeVideoData['id'],
-        'playlist':youtubeVideoData['album'],
-        'playlist_index':youtubeVideoData['playlist_index'],
-        'upload_year':str(youtubeVideoData['upload_date'])[0:4],
-        'upload_month':str(youtubeVideoData['upload_date'])[4:6],
-        'upload_day':str(youtubeVideoData['upload_date'])[6:8]
-    }
+    #the status on the attempt to get the video metadata
+    videoDataMetadataGetStatus = True
+
+    #add the extension onto the temporary file name so that it can be referrenced by the program later
+    tmpFileNameNumber = str(tmpFileNameNumber) + '.' + youtubeVideoData['ext']
+
+    #try to get the video metadata (seems to mostly only work for youtube)
+    try:
+
+        #try to get the metadata from the video that will be used for tagging (if this fails to happen, then it will fall back to the default plain file name)
+        testVideoData = {
+            'ext':youtubeVideoData['ext'],
+            'title':youtubeVideoData['title'],
+            'uploader':youtubeVideoData['uploader'],
+            'id':youtubeVideoData['id'],
+            'playlist':youtubeVideoData['album'],
+            'playlist_index':youtubeVideoData['playlist_index'],
+            'upload_year':str(youtubeVideoData['upload_date'])[0:4],
+            'upload_month':str(youtubeVideoData['upload_date'])[4:6],
+            'upload_day':str(youtubeVideoData['upload_date'])[6:8]
+        }
+
+        #the output file name
+        outputFileName = '{}_{}_{}_{}.{}'.format(
+            testVideoData['upload_year'], #upload year 
+            testVideoData['upload_month'], #upload month
+            testVideoData['upload_day'], #upload day
+            testVideoData['title'], #title
+            testVideoData['ext'] #extension
+        )
+
+    #there was an error getting the metadata for the video (probably not a youtube link)
+    except:
+
+        #print a warning to the console
+        print('Error downloading {} with youtube metadata, using default filename instead.'.format(videoURL))
+
+        #set the get status to false (failure)
+        videoDataMetadataGetStatus = False
+
+        #the output file name (without the fancy youtube metadata)
+        outputFileName = '{}.{}'.format(
+            youtubeVideoData['title'], #title
+            youtubeVideoData['ext'] #extension
+        )
 
     #download the video
     youtubeDLObject.download([videoURL])
 
-    #encode the media file with the data
-    os.system('ffmpeg -i "{}/{}.{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}_{}_{}_{}.{}" -nostdin -y'.format(
-        parentDownloadDir, #download directory
-        tmpFileNameNumber, #filename
-        youtubeVideoMetadataData['ext'], #extension
-        youtubeVideoMetadataData['title'], #metadata title
-        youtubeVideoMetadataData['uploader'], #metadata author (for video)
-        youtubeVideoMetadataData['uploader'], #metadata artist (for music)
-        parentDownloadDir, #download directory
-        youtubeVideoMetadataData['upload_year'], #upload year 
-        youtubeVideoMetadataData['upload_month'], #upload month
-        youtubeVideoMetadataData['upload_day'], #upload day
-        youtubeVideoMetadataData['title'], #title
-        youtubeVideoMetadataData['ext'] #extension
-    ))
+    #only encode the metadata if the get status is good
+    if (videoDataMetadataGetStatus):
 
-    #delete the original file
-    os.remove('{}/{}.{}'.format(parentDownloadDir, tmpFileNameNumber, youtubeVideoMetadataData['ext']))
+        #encode the media file with the data
+        os.system('ffmpeg -i "{}/{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}" -nostdin -y'.format(
+            parentDownloadDir, #download directory
+            tmpFileNameNumber, #filename
+            youtubeVideoData['title'], #metadata title
+            youtubeVideoData['uploader'], #metadata author (for video)
+            youtubeVideoData['uploader'], #metadata artist (for music)
+            parentDownloadDir, #download directory
+            outputFileName #the name of the output file
+        ))
+
+        #remove the original file
+        os.remove('{}/{}'.format(parentDownloadDir, tmpFileNameNumber))
+    
+    #otherwise just rename the file
+    else:
+
+        #move/rename it
+        shutil.move('{}/{}'.format(parentDownloadDir, tmpFileNameNumber), '{}/{}'.format(parentDownloadDir, outputFileName))
 
     #return the path of the video
-    return '{}/{}_{}_{}_{}.{}'.format(parentDownloadDir, youtubeVideoMetadataData['upload_year'], youtubeVideoMetadataData['upload_month'], youtubeVideoMetadataData['upload_day'], youtubeVideoMetadataData['title'], youtubeVideoMetadataData['ext'])
+    return '{}/{}'.format(parentDownloadDir, outputFileName)
 
 #function to get the app's title (advantage of this to the older method is that the app title can be updated without a restart)
 def GET_APP_TITLE() -> str:
@@ -968,8 +1023,6 @@ def YTDL_POLLER():
                     DATABASE_CURSOR.execute('SELECT * FROM download_history WHERE download_id = ?', (videoID,))
                     databaseRow = DATABASE_CURSOR.fetchall()[0]
 
-                    print(databaseRow)
-
                     #download the video
                     downloadPath = downloadVideo(
                         databaseRow[2], #video url
@@ -977,7 +1030,7 @@ def YTDL_POLLER():
                         parentDownloadDir = databaseRow[7], #video download directory
                         proxy = databaseRow[8] #the proxy
                     )
-
+                    
                     #update the database and tell it that the download was successful
                     DATABASE_CONNECTION.execute('UPDATE download_history SET status = ? WHERE download_id = ?', ('3', videoID))
                     DATABASE_CONNECTION.commit()
