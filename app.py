@@ -81,7 +81,7 @@ def WEB_QUEUE():
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory was not in the list of valid directories.')
         
         #check that the video format is valid
-        if (YTDL_FORMAT.lower() not in [*validVideoFormats, '#default']):
+        if (YTDL_FORMAT.lower() not in [*validVideoFormats]):
 
             #the format is incorrect, dont download and return an error
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
@@ -820,32 +820,14 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #check if there is a proxy being used
     if (proxy == '#none'):
 
-        #check if the video download format is default (#default)
-        if (videoFormat == '#default'):
-
-            #the format is the default, dont include it
-            youtubeDLObject = youtube_dl.YoutubeDL({'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
-        
-        #the format is something custom
-        else:
-
-            #set up the youtube downloader object without a proxy
-            youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+        #set up the youtube downloader object without a proxy
+        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
     
     #there is a proxy being used
     else:
 
-        #check if the video download format is the default format
-        if (videoFormat == '#default'):
-
-            #set up the youtube downloader object with a proxy
-            youtubeDLObject = youtube_dl.YoutubeDL({'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
-
-        #the format is custom
-        else:
-
-            #set up the youtube downloader object with a proxy
-            youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
+        #set up the youtube downloader object with a proxy
+        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
 
     #download the metadata so that the video can be tagged for usage with streaming servers
     youtubeVideoData = youtubeDLObject.extract_info(videoURL, download = False)
