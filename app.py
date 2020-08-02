@@ -74,11 +74,8 @@ def WEB_QUEUE():
         YTDL_ORDER = str(flask.request.form.get('order'))
         YTDL_PROXY = str(flask.request.form.get('proxy'))
 
-        #get a list of the download directories to ensure that the directory is valid
-        downloadDirListUnparsed = str(open('./download-dirs.txt').read()).split('\n')
-
         #check if the directory is in the download-dir.txt list or is the default directory
-        if (YTDL_DIR not in [*downloadDirListUnparsed, DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
+        if (YTDL_DIR not in [*GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
             
             #since the directory was not in the list of valid directories, return an error
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory was not in the list of valid directories.')
