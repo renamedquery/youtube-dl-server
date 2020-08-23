@@ -328,7 +328,12 @@ def WEB_LOGIN():
     loginKeys = DATABASE_CURSOR.fetchall()
 
     #return the login page
-    return flask.render_template('login.html', applicationName = GET_APP_TITLE(), showRegistrationPage = True if len(loginKeys > 0) else False) #only show the registration page if registration keys exist (since its impossible to register without a registration key)
+    return flask.render_template('login.html', applicationName = GET_APP_TITLE(), showRegistrationPage = True if len(loginKeys) > 0 else False) #only show the registration page if registration keys exist (since its impossible to register without a registration key)
+
+#the function to handle any requests to the register page
+@app.route('/register', methods = ['POST'])
+def WEB_REGISTER():
+    return 'this page is a work in progress'
 
 #the function to handle any requests to the logout page
 @app.route('/logout', methods = ['GET', 'POST'])
