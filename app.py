@@ -74,6 +74,8 @@ def WEB_QUEUE():
         YTDL_ORDER = str(flask.request.form.get('order'))
         YTDL_PROXY = str(flask.request.form.get('proxy'))
         YTDL_FOVERRIDE = str(flask.request.form.get('custom_format'))
+        YTDL_RMDATE = 0 if str(flask.request.form.get('remove_date')) == 'None' else 1
+        print(YTDL_RMDATE)
 
         #check if there is a custom format
         if (YTDL_FOVERRIDE != ''):
@@ -151,8 +153,8 @@ def WEB_QUEUE():
         #add the videos to the database history
         for video in youtubeDLVideoList:
             DATABASE_CURSOR.execute(
-                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path, proxy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR, YTDL_PROXY)
+                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path, proxy, rm_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR, YTDL_PROXY, YTDL_RMDATE)
             )
             YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
             DATABASE_CONNECTION.commit()
@@ -816,7 +818,7 @@ def isUserLoggedIn(userSession) -> bool:
         return False
 
 #function to download videos (returns the path of the downloaded video)
-def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, proxy = '#none') -> str:
+def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, proxy = '#none', rmDate = 0) -> str:
 
     #check that the video download directory exists
     if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
@@ -865,10 +867,10 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
         }
 
         #the output file name
-        outputFileName = '{}_{}_{}_{}.{}'.format(
-            testVideoData['upload_year'], #upload year 
-            testVideoData['upload_month'], #upload month
-            testVideoData['upload_day'], #upload day
+        outputFileName = '{}{}{}{}.{}'.format(
+            str(testVideoData['upload_year']) + '_' if int(rmDate) == 0 else '', #upload year 
+            str(testVideoData['upload_month']) + '_' if int(rmDate) == 0 else '', #upload month
+            str(testVideoData['upload_day']) + '_' if int(rmDate) == 0 else '', #upload day
             testVideoData['title'], #title
             testVideoData['ext'] #extension
         )
@@ -1017,7 +1019,8 @@ def YTDL_POLLER():
                         databaseRow[2], #video url
                         databaseRow[5], #video format
                         parentDownloadDir = databaseRow[7], #video download directory
-                        proxy = databaseRow[8] #the proxy
+                        proxy = databaseRow[8], #the proxy
+                        rmDate = databaseRow[9] #the 1/0 that determines whether or not the date should be written to the filename
                     )
                     
                     #update the database and tell it that the download was successful
