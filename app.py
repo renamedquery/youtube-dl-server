@@ -11,7 +11,7 @@ DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 DEFAULT_VIDEO_DOWNLOAD_DIR = DATABASE_CURSOR.execute('SELECT config_data_content FROM app_config WHERE config_data_title = ?', ('DEFAULT_DOWNLOAD_DIR',)).fetchall()[0][0]
 
 #the valid video formats
-validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo', 'best']
+validVideoFormats = ['aac', 'flac', 'mp3', 'm4a', 'opus', 'vorbis', 'wav', 'bestaudio', 'mp4', 'flv', 'webm', 'ogg', 'mkv', 'avi', 'bestvideo', 'best', 'ultra']
 
 #create the application class
 app = flask.Flask(__name__)
@@ -829,6 +829,12 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
     tmpFileNameNumber = str(time.time())
     tmpFileNameNumberOriginal = tmpFileNameNumber
+
+    #check if the format is ultra
+    if (videoFormat == 'ultra'):
+
+        #set the video format as a custom format to get maximum quality
+        videoFormat = 'bestvideo[height>2160]+140/(bestvideo[height=2160][fps>30]+251)/bestvideo[height=2160]+251/bestvideo[height=2160]+140/(bestvideo[height=1440][fps>30]+251)/bestvideo[height=1440]+251/bestvideo[height=1440]+140/(bestvideo[height=1080][fps>30]+251)/bestvideo[height=1080]+251/bestvideo[height=1080]+140/(bestvideo[height=720][fps>30]+251)/bestvideo+251/bestvideo+140/best'
 
     #the arguments for the downloader
     ytdlArgs = {
