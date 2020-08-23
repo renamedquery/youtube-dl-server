@@ -830,17 +830,28 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     tmpFileNameNumber = str(time.time())
     tmpFileNameNumberOriginal = tmpFileNameNumber
 
+    #the arguments for the downloader
+    ytdlArgs = {
+        'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),
+        'default_search':'youtube',
+        'proxy':proxy,
+        'format':videoFormat
+    }
+
     #check if there is a proxy being used
     if (proxy == '#none'):
 
-        #set up the youtube downloader object without a proxy
-        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube'})
+        #set up the youtube downloader object without a proxy (remove the proxy key)
+        del ytdlArgs['proxy']
     
-    #there is a proxy being used
-    else:
+    #check if the format is best (no format at all)
+    if (videoFormat == 'best'):
 
-        #set up the youtube downloader object with a proxy
-        youtubeDLObject = youtube_dl.YoutubeDL({'format':videoFormat,'outtmpl':'{}/{}.%(ext)s'.format(parentDownloadDir, tmpFileNameNumber),'default_search':'youtube', 'proxy':proxy})
+        #remove the format key (it downloads the best format automatically)
+        del ytdlArgs['format']
+        
+    #the youtube downloader object
+    youtubeDLObject = youtube_dl.YoutubeDL(ytdlArgs)
 
     #download the metadata so that the video can be tagged for usage with streaming servers
     youtubeVideoData = youtubeDLObject.extract_info(videoURL, download = False)
@@ -919,7 +930,7 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     if (videoDataMetadataGetStatus):
 
         #encode the media file with the data
-        os.system('ffmpeg -i "{}/{}" -strict -2 -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}" -nostdin -y'.format(
+        os.system('ffmpeg -i "{}/{}" -strict -2 -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy -c:a aac "{}/{}" -nostdin -y'.format(
             parentDownloadDir, #download directory
             tmpFileNameNumber, #filename
             youtubeVideoData['title'], #metadata title
