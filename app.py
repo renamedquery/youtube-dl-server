@@ -828,6 +828,7 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
 
     #the youtube-dl temporary file name (just make it a timestamp so that it doesnt overwrite anything)
     tmpFileNameNumber = str(time.time())
+    tmpFileNameNumberOriginal = tmpFileNameNumber
 
     #check if there is a proxy being used
     if (proxy == '#none'):
@@ -893,11 +894,32 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
     #download the video
     youtubeDLObject.download([videoURL])
 
+    #check if the original video exists or if the video was merged into something else
+    if (tmpFileNameNumber not in os.listdir(parentDownloadDir)):
+
+        #alert the user that the original video was not found and that the program will attempt to find a similar video
+        print('Original video not found for {}. Will try to find the new merged file.'.format(tmpFileNameNumber))
+
+        #search the directory for a similar file
+        for file in os.listdir(parentDownloadDir):
+
+            #check if the file has the same timestamp on it
+            if (tmpFileNameNumberOriginal in file):
+
+                #tell the program that a likely match was found (in the end this isnt the best system, but chances are that itll find the right match)
+                print('Likely match for {} was found: {}.'.format(tmpFileNameNumber, file))
+                
+                #set the tmp file name as the match
+                tmpFileNameNumber = file
+
+                #break out of the for loop
+                break
+
     #only encode the metadata if the get status is good
     if (videoDataMetadataGetStatus):
 
         #encode the media file with the data
-        os.system('ffmpeg -i "{}/{}" -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}" -nostdin -y'.format(
+        os.system('ffmpeg -i "{}/{}" -strict -2 -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy "{}/{}" -nostdin -y'.format(
             parentDownloadDir, #download directory
             tmpFileNameNumber, #filename
             youtubeVideoData['title'], #metadata title
