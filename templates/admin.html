@@ -10,6 +10,7 @@
             <button onclick = 'changeVisibleAdminAction(0);' class = 'btn btn-info m-3'>Delete/Create a User</button>
             <button onclick = 'changeVisibleAdminAction(1);' class = 'btn btn-info m-3'>Edit App Settings</button>
             <button onclick = 'changeVisibleAdminAction(2);' class = 'btn btn-info m-3'>Manage Data</button>
+            <button onclick = 'changeVisibleAdminAction(3);' class = 'btn btn-info m-3'>User Registration</button>
         </div>
         <div id = 'editCreateUser' class = 'togglePageViewSelection'>
             <div>
@@ -144,6 +145,35 @@
                 <button class = 'btn btn-danger significantLeftMargin' type = 'submit'>Clear download history</button>
             </form>
         </div>
+        <div id = 'userRegistration' class = 'togglePageViewSelection'>
+            <div>
+                <table class = 'table-responsive-xl table table-bordered overflow-auto' id = 'history-table'>
+                    <thead>
+                        <tr>
+                            <th scope = 'col'>Key</th>
+                            <th scole = 'col' class = 'col-lg-2'>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registerKey in registerKeys %}
+                            <tr>
+                                <td scope = row>{{ registerKey[0] }}</td>
+                                <td>
+                                    <form action = "{{ url_for('WEB_DELETEREGKEY') }}" method = 'POST'>
+                                        <input value = '{{ registerKey[1] }}' name = 'key_id' class = 'hidden'>
+                                        <button class = 'btn btn-danger' type = 'submit' id = 'button-submit'>Delete Key</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <form form action = "{{ url_for('WEB_MAKEREGKEY') }}" method = 'POST' autocomplete = 'off'>
+                <div class = 'input-group d-flex justify-content-center'>
+                    <button class = 'btn btn-primary significantLeftMargin' type = 'submit' id = 'button-submit'>Auto Generate a New Registration Key (SHA256)</button>
+                </div>
+        </div>
     </div>
     <footer>
     <div>
@@ -155,7 +185,7 @@
 </div>
 <script>
     //the list of the subscription actions
-    adminActions = ['editCreateUser', 'editAppSettings', 'manageData'];
+    adminActions = ['editCreateUser', 'editAppSettings', 'manageData', 'userRegistration'];
 
     //the function to change what subscription action is visible
     function changeVisibleAdminAction(index) {

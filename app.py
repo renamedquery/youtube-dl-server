@@ -1,5 +1,5 @@
 #import statements
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
@@ -506,6 +506,88 @@ def WEB_DELETEUSER():
         #return the login page
         return flask.render_template('login.html', applicationName = GET_APP_TITLE())
 
+#the function to generate a registration key
+@app.route('/addregkey', methods = ['POST'])
+def WEB_MAKEREGKEY():
+
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+        #check that their privelege is 1 and not 0
+        if (str(adminPrivelegeResults) == '1'):
+
+            #make the new registration key
+            #i know sha256 is bad, but it doesnt matter here, this is just a randomly generated key for creating a user account, and it just has to be individual, which is what you get by sha256-ing a random integer
+            #if you see an issue with this, then raise an issue on the github repo, id be happy to fix this if it is a security concern
+            newRandomRegistrationKey = str(hashlib.sha256(str(random.randint(0, 1000000)).encode()).hexdigest())
+
+            #add the key to the database
+            DATABASE_CONNECTION.execute('INSERT INTO app_config (config_data_title, config_data_content) VALUES (?, ?)', ('REGISTRATION_KEY', newRandomRegistrationKey))
+            DATABASE_CONNECTION.commit()
+
+            #return the user to the admin page
+            return flask.redirect(flask.url_for('WEB_ADMIN'))
+        
+        #they arent an admin
+        else:
+
+            #return the home page
+            return flask.redirect(flask.url_for('WEB_INDEX'))
+
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+
+#the function to delete registration keys
+@app.route('/delregkey', methods = ['POST'])
+def WEB_DELETEREGKEY():
+    
+    #check that the user is logged in
+    if (isUserLoggedIn(flask.session)):
+
+        #connect to the database
+        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+        #get the data for the current user to make sure that they are an admin
+        DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
+        adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+        #check that their privelege is 1 and not 0
+        if (str(adminPrivelegeResults) == '1'):
+
+            #get the id of the key that is going to be deleted
+            keyID = flask.request.form.get('key_id')
+            
+            #delete the key
+            DATABASE_CONNECTION.execute('DELETE FROM app_config WHERE config_data_id = ?', (keyID,))
+            DATABASE_CONNECTION.commit()
+
+            #return the user to the admin page
+            return flask.redirect(flask.url_for('WEB_ADMIN'))
+        
+        #they arent an admin
+        else:
+
+            #return the home page
+            return flask.redirect(flask.url_for('WEB_INDEX'))
+
+    #the user isnt logged in
+    else:
+        
+        #return the login page
+        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+
 #the function to handle any requests to the subscriptions page
 @app.route('/subscriptions', methods = ['GET', 'POST'])
 def WEB_SUBSCRIPTIONS():
@@ -640,6 +722,10 @@ def WEB_ADMIN():
         #get the data for the current user to make sure that they are an admin
         DATABASE_CURSOR.execute('SELECT admin FROM users WHERE username = ?', (flask.session['LOGGED_IN_ACCOUNT_DATA'][0],))
         adminPrivelegeResults = DATABASE_CURSOR.fetchall()[0][0]
+
+        #get the data for the registration keys
+        DATABASE_CURSOR.execute('SELECT config_data_content, config_data_id FROM app_config WHERE config_data_title = ?', ('REGISTRATION_KEY',))
+        registrationKeys = DATABASE_CURSOR.fetchall()
         
         #check that their privelege is 1 and not 0
         if (str(adminPrivelegeResults) == '1'):
@@ -672,7 +758,7 @@ def WEB_ADMIN():
             proxies = DATABASE_CURSOR.execute('SELECT * FROM proxies').fetchall()
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies, defaultDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR)
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies, defaultDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, registerKeys = registrationKeys)
         
         #they dont have admin priveleges, just return them to the homepage
         else:
