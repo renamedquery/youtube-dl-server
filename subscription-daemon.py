@@ -31,6 +31,9 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir) -> str:
         'id':youtubeVideoData['id'],
         'playlist':youtubeVideoData['album'],
         'playlist_index':youtubeVideoData['playlist_index'],
+        'upload_year':str(youtubeVideoData['upload_date'])[0:4],
+        'upload_month':str(youtubeVideoData['upload_date'])[4:6],
+        'upload_day':str(youtubeVideoData['upload_date'])[6:8]
     }
 
     #download the video

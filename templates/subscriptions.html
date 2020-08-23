@@ -29,18 +29,14 @@
                         Media download format:
                     </div>
                     <div class = 'col-lg-8 p-0'>
-                        <select class = 'custom-select form-control rounded col-12' name = 'format'>
-                            <option value = 'best'>Best Audio and Video (YouTube)</option>
-                            <optgroup label = 'Video'>
-                                <option value = 'bestvideo'>Best Video (YouTube)</option>
-                                <option value = 'mp4'>MP4 (YouTube)</option>
-                                <option value = 'webm'>WebM (YouTube)</option>
-                            </optgroup>
-                            <optgroup label = 'Audio'>
-                                <option value = 'bestaudio'>Best Audio (YouTube)</option>
-                                <option value = 'm4a'>M4A (YouTube)</option>
-                            </optgroup>
-                        </select>
+                        <input name = 'format' type = 'text' class = 'form-control col-12 rounded' placeholder = 'mp4, m4a, 140, 22, webm, bestaudio, bestvideo, etc...' list = 'format-datalist'>
+                        <datalist id = 'format-datalist'>
+                            <option value = 'bestvideo'></option>
+                            <option value = 'mp4'></option>
+                            <option value = 'webm'></option>
+                            <option value = 'bestaudio'></option>
+                            <option value = 'm4a'></option>
+                        </datalist>
                     </div>
                     <!--line 3-->
                     <div class = 'col-lg-4 p-0'>
