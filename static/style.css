@@ -1,4 +1,4 @@
-body{background-color: #002b36;width:100vw;height:100vh;margin:0px:padding:0px;}
+body{background-color: #002b36;width:100vw;height:100vh;margin:0px;padding:0px;}
 div.input-group>select.custom-select{flex: 0.1 1 100px;}
 #advancedOptionsCollapsableDiv{background-color:transparent !important;border:0px !important;}
 .card{background-color:transparent !important;border:0px !important;}
