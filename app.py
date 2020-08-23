@@ -64,8 +64,8 @@ def WEB_QUEUE():
     #check that the user is logged in
     if (isUserLoggedIn(flask.session)):
 
-        #import the global variable for the valid video formats
-        global validVideoFormats
+        #make a temporary variable for the valid video formats which can be non-destructively edited
+        tmpValidVideoFormats = validVideoFormats
 
         #get the form data
         YTDL_URL = str(flask.request.form.get('url'))
@@ -73,6 +73,16 @@ def WEB_QUEUE():
         YTDL_DIR = str(flask.request.form.get('directory'))
         YTDL_ORDER = str(flask.request.form.get('order'))
         YTDL_PROXY = str(flask.request.form.get('proxy'))
+        YTDL_FOVERRIDE = str(flask.request.form.get('custom_format'))
+
+        #check if there is a custom format
+        if (YTDL_FOVERRIDE != ''):
+
+            #set the format as the overridden format
+            YTDL_FORMAT = YTDL_FOVERRIDE
+
+            #add the format to the tmp valid video format variable
+            tmpValidVideoFormats.append(YTDL_FORMAT)
 
         #check if the directory is in the download-dir.txt list or is the default directory
         if (YTDL_DIR not in [*GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR, '#browser2computer']):
@@ -81,7 +91,7 @@ def WEB_QUEUE():
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The directory was not in the list of valid directories.')
         
         #check that the video format is valid
-        if (YTDL_FORMAT.lower() not in [*validVideoFormats]):
+        if (YTDL_FORMAT.lower() not in [*tmpValidVideoFormats]):
 
             #the format is incorrect, dont download and return an error
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The download format selected was incorrect for this type of media. Try using bestvideo or bestaudio if you are unsure which one works.')
