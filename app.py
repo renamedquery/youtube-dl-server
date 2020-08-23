@@ -55,7 +55,7 @@ def WEB_INDEX():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE()) 
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests sent to the queue page this is where it triggers the server to download the media
 @app.route('/queue', methods = ['POST'])
@@ -202,7 +202,7 @@ def WEB_QUEUE():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the download history page
 @app.route('/history', methods = ['GET', 'POST'])
@@ -248,7 +248,7 @@ def WEB_HISTORY():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle requests to the history pages api (for auto refreshing the page) (allow both get and post, but post is preferred)
 @app.route('/history/.json', methods = ['GET', 'POST'])
@@ -313,14 +313,22 @@ def WEB_HISTORYCLR():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the login page
 @app.route('/login', methods = ['GET', 'POST'])
 def WEB_LOGIN():
 
+    #connect to the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #get the amount of login keys
+    DATABASE_CURSOR.execute('SELECT config_data_title FROM app_config WHERE config_data_title = ?', ('REGISTRATION_KEY',))
+    loginKeys = DATABASE_CURSOR.fetchall()
+
     #return the login page
-    return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+    return flask.render_template('login.html', applicationName = GET_APP_TITLE(), showRegistrationPage = True if len(loginKeys > 0) else False) #only show the registration page if registration keys exist (since its impossible to register without a registration key)
 
 #the function to handle any requests to the logout page
 @app.route('/logout', methods = ['GET', 'POST'])
@@ -454,7 +462,7 @@ def WEB_ADDUSER():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the delete user page (only accessible by post request, by admins only)
 @app.route('/deleteuser', methods = ['POST'])
@@ -504,7 +512,7 @@ def WEB_DELETEUSER():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to generate a registration key
 @app.route('/addregkey', methods = ['POST'])
@@ -546,7 +554,7 @@ def WEB_MAKEREGKEY():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to delete registration keys
 @app.route('/delregkey', methods = ['POST'])
@@ -586,7 +594,7 @@ def WEB_DELETEREGKEY():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the subscriptions page
 @app.route('/subscriptions', methods = ['GET', 'POST'])
@@ -613,7 +621,7 @@ def WEB_SUBSCRIPTIONS():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the subscription manager page
 @app.route('/managesubscription', methods = ['POST'])
@@ -706,7 +714,7 @@ def WEB_MANAGESUBSCRIPTION():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the administrator page
 @app.route('/admin', methods = ['GET', 'POST'])
@@ -770,7 +778,7 @@ def WEB_ADMIN():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #function to handle requests to the admin action page
 @app.route('/adminaction', methods = ['POST'])
@@ -869,7 +877,7 @@ def WEB_ADMINACTION():
     else:
         
         #return the login page
-        return flask.render_template('login.html', applicationName = GET_APP_TITLE())
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #function to check whether or not the user is logged in (userSession should be the flask.session['LOGGED_IN_ACCOUNT_DATA'] variable)
 def isUserLoggedIn(userSession) -> bool:
