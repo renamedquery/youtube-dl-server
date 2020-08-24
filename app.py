@@ -512,12 +512,22 @@ def WEB_REGNEWUSER():
         #check if the passwords match or are empty
         if (newUserPassword == newUserPasswordConfirm and len(newUserPassword.strip()) > 0 and len(newUserPasswordConfirm.strip()) > 0 and len(newUserUsername.strip()) > 0):
 
-            #register the account into the database
-            DATABASE_CONNECTION.execute('INSERT INTO users (username, password) VALUES (?, ?)', (newUserUsername, WZS.generate_password_hash(newUserPassword)))
-            DATABASE_CONNECTION.commit()
+            #check that the user doesnt already exist
+            DATABASE_CURSOR.execute('SELECT username FROM users WHERE username = ?', (newUserUsername,))
+            if (len(DATABASE_CURSOR.fetchall()) == 0):
 
-            #return them to the login page so they can sign in
-            return flask.redirect(flask.url_for('WEB_LOGIN'))
+                #register the account into the database
+                DATABASE_CONNECTION.execute('INSERT INTO users (username, password) VALUES (?, ?)', (newUserUsername, WZS.generate_password_hash(newUserPassword)))
+                DATABASE_CONNECTION.commit()
+
+                #return them to the login page so they can sign in
+                return flask.redirect(flask.url_for('WEB_LOGIN'))
+
+            #the username already exists
+            else:
+
+                #return the error page
+                return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The username you tried to use already exists.')
         
         #the passwords dont match or were empty
         else:
