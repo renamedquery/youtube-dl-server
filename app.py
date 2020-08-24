@@ -325,15 +325,37 @@ def WEB_LOGIN():
 
     #get the amount of login keys
     DATABASE_CURSOR.execute('SELECT config_data_title FROM app_config WHERE config_data_title = ?', ('REGISTRATION_KEY',))
-    loginKeys = DATABASE_CURSOR.fetchall()
+    registrationKeys = DATABASE_CURSOR.fetchall()
 
     #return the login page
-    return flask.render_template('login.html', applicationName = GET_APP_TITLE(), showRegistrationPage = True if len(loginKeys) > 0 else False) #only show the registration page if registration keys exist (since its impossible to register without a registration key)
+    return flask.render_template('login.html', applicationName = GET_APP_TITLE(), showRegistrationPage = True if len(registrationKeys) > 0 else False) #only show the registration page if registration keys exist (since its impossible to register without a registration key)
 
 #the function to handle any requests to the register page
-@app.route('/register', methods = ['POST'])
+@app.route('/register', methods = ['GET'])
 def WEB_REGISTER():
-    return 'this page is a work in progress'
+    
+    #connect to the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #get the amount of login keys
+    DATABASE_CURSOR.execute('SELECT config_data_title FROM app_config WHERE config_data_title = ?', ('REGISTRATION_KEY',))
+    registrationKeys = DATABASE_CURSOR.fetchall()
+
+    #get the registration key that is in the url (if one was passed)
+    registrationKey = flask.request.args.get('rk') if flask.request.args.get('rk') != None else ''
+
+    #check that there are registration keys
+    if (len(registrationKeys) > 0):
+
+        #return the registration page since there are registration keys
+        return flask.render_template('register.html', applicationName = GET_APP_TITLE(), registration_key = registrationKey)
+    
+    #there are no login keys
+    else:
+
+        #return the login page since there are no registration keys
+        return flask.redirect(flask.url_for('WEB_LOGIN'))
 
 #the function to handle any requests to the logout page
 @app.route('/logout', methods = ['GET', 'POST'])
@@ -468,6 +490,46 @@ def WEB_ADDUSER():
         
         #return the login page
         return flask.redirect(flask.url_for('WEB_LOGIN'))
+
+#the function to register a user
+@app.route('/registernewuser', methods = ['POST'])
+def WEB_REGNEWUSER():
+    
+    #get the form data
+    newUserUsername = str(flask.request.form.get('new_username'))
+    newUserPassword = str(flask.request.form.get('new_password'))
+    newUserPasswordConfirm = flask.request.form.get('new_password_confirm')
+    newUserRegistrationKey = flask.request.form.get('registration_key')
+
+    #connect to the database
+    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
+
+    #check if the registration key is in the database
+    DATABASE_CURSOR.execute('SELECT config_data_id FROM app_config WHERE config_data_title = ? AND config_data_content = ?', ('REGISTRATION_KEY', newUserRegistrationKey))
+    if (len(DATABASE_CURSOR.fetchall()) > 0):
+        
+        #check if the passwords match or are empty
+        if (newUserPassword == newUserPasswordConfirm and len(newUserPassword.strip()) > 0 and len(newUserPasswordConfirm.strip()) > 0 and len(newUserUsername.strip()) > 0):
+
+            #register the account into the database
+            DATABASE_CONNECTION.execute('INSERT INTO users (username, password) VALUES (?, ?)', (newUserUsername, WZS.generate_password_hash(newUserPassword)))
+            DATABASE_CONNECTION.commit()
+
+            #return them to the login page so they can sign in
+            return flask.redirect(flask.url_for('WEB_LOGIN'))
+        
+        #the passwords dont match or were empty
+        else:
+            
+            #return the error page
+            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'The passwords you tried to register with were either empty, or they did not match, or your username was empty.')
+    
+    #the key is not in the database
+    else:
+
+        #return the error page
+        return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid registration key. Please contact your server admin for a proper key.')
 
 #the function to handle any requests to the delete user page (only accessible by post request, by admins only)
 @app.route('/deleteuser', methods = ['POST'])
