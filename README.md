@@ -53,6 +53,10 @@ Pre setup-warning: The user this program is running under should have r/w access
 
 Leave an issue on the [official repo](https://github.com/katznboyz1/youtube-dl-server)!
 
+## Known issues:
+
+- Downloading certain videos with the ultra high format will lead to a missing codec error if you play it on windows.
+
 ## Disclaimers
 
 - I am not a network security professional. If you run this application exposed to the internet, then you run it at your own risk. Do not use common/reused passwords for this application. I am a singular person, and there may be bugs in this program. Do not allow it to fail badly by not following common sense.
