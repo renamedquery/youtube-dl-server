@@ -2,6 +2,8 @@
 
 #### (A modified version of [manbearwiz's youtube-dl-server](https://github.com/manbearwiz/youtube-dl-server). This project is still in the beta stages, so deploy it at your own risk.)
 
+*As of 2020/08/27, I will only be working on this project occasionally. I still want to update it, but the new school year brings new (educationally oriented) different projects that will take up more of my time. If you would like to help out, you can try to add code to this! Thanks! Updates will be coming out occasionally, and hopefully this will be done soon.*
+
 ![](https://i.imgur.com/oWHtkp1.png?raw=true)
 
 ## What is new in this version?
