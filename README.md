@@ -38,7 +38,7 @@
 
 Install the required packages with apt-get:
 
-`sudo apt-get install gunicorn3 ffmpeg python3 python3-pip`
+`sudo apt-get install ffmpeg python3 python3-pip`
 
 Install the requrired modules with pip:
 
