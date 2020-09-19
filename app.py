@@ -75,7 +75,8 @@ def WEB_QUEUE():
         YTDL_PROXY = str(flask.request.form.get('proxy'))
         YTDL_FOVERRIDE = str(flask.request.form.get('custom_format'))
         YTDL_RMDATE = 0 if str(flask.request.form.get('remove_date')) == 'None' else 1
-        print(YTDL_RMDATE)
+        YTDL_TITLE_OVERRIDE = str(flask.request.form.get('title_override'))
+        YTDL_AUTHOR_OVERRIDE = str(flask.request.form.get('author_override'))
 
         #check if there is a custom format
         if (YTDL_FOVERRIDE != ''):
@@ -153,8 +154,8 @@ def WEB_QUEUE():
         #add the videos to the database history
         for video in youtubeDLVideoList:
             DATABASE_CURSOR.execute(
-                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path, proxy, rm_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR, YTDL_PROXY, YTDL_RMDATE)
+                'INSERT INTO download_history (url, title, status, timestamp, format, download_folder_path, actual_download_folder_path, proxy, rm_date, title_override, author_override) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                (video[0], video[1], 1, datetime.datetime.timestamp(datetime.datetime.now()), YTDL_FORMAT, YTDL_DIR, YTDL_DIR if YTDL_DIR != '#browser2computer' else DEFAULT_VIDEO_DOWNLOAD_DIR, YTDL_PROXY, YTDL_RMDATE, YTDL_TITLE_OVERRIDE, YTDL_AUTHOR_OVERRIDE)
             )
             YTDL_DL_ID = DATABASE_CURSOR.lastrowid #the id of the download, in the database
             DATABASE_CONNECTION.commit()
@@ -989,7 +990,7 @@ def isUserLoggedIn(userSession) -> bool:
         return False
 
 #function to download videos (returns the path of the downloaded video)
-def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, proxy = '#none', rmDate = 0) -> str:
+def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, proxy = '#none', rmDate = 0, authorOverride = '', titleOverride = '') -> str:
 
     #check that the video download directory exists
     if (not os.path.exists(DEFAULT_VIDEO_DOWNLOAD_DIR)):
@@ -1110,9 +1111,9 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
         os.system('ffmpeg -i "{}/{}" -strict -2 -metadata title="{}" -metadata author="{}" -metadata artist="{}" -c copy -c:a aac "{}/{}" -nostdin -y'.format(
             parentDownloadDir, #download directory
             tmpFileNameNumber, #filename
-            youtubeVideoData['title'], #metadata title
-            youtubeVideoData['uploader'], #metadata author (for video)
-            youtubeVideoData['uploader'], #metadata artist (for music)
+            youtubeVideoData['title'] if titleOverride.strip() == '' else titleOverride.strip(), #metadata title
+            youtubeVideoData['uploader'] if authorOverride.strip() == '' else authorOverride.strip(), #metadata author (for video)
+            youtubeVideoData['uploader'] if authorOverride.strip() == '' else authorOverride.strip(), #metadata artist (for music)
             parentDownloadDir, #download directory
             outputFileName #the name of the output file
         ))
@@ -1230,7 +1231,9 @@ def YTDL_POLLER():
                         databaseRow[5], #video format
                         parentDownloadDir = databaseRow[7], #video download directory
                         proxy = databaseRow[8], #the proxy
-                        rmDate = databaseRow[9] #the 1/0 that determines whether or not the date should be written to the filename
+                        rmDate = databaseRow[9], #the 1/0 that determines whether or not the date should be written to the filename
+                        authorOverride = databaseRow[11], #the author override (if empty then nothing happens)
+                        titleOverride = databaseRow[10] #the title override (if empty then nothing happens)
                     )
                     
                     #update the database and tell it that the download was successful
