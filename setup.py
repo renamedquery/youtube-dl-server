@@ -1,5 +1,5 @@
 #import statements
-import json, sqlite3, os, getpass
+import sqlite3, os, getpass
 import werkzeug.security as WZS
 import argparse
 
@@ -46,6 +46,7 @@ def setup():
         exit()
 
     #create the database
+    os.mkdir('db')
     DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 
     #make the users table
