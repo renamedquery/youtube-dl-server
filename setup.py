@@ -46,7 +46,7 @@ def setup():
         exit()
 
     #create the database
-    os.mkdir('db')
+    if ('db' not in os.listdir('.')) os.mkdir('db') else print('/db already exists.')
     DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 
     #make the users table
