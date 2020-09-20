@@ -20,18 +20,25 @@ RUN apt-get update && \
 COPY ./requirements.txt ./ 
 RUN python3 -m pip install -r requirements.txt
 
+
+ENV APPNAME YDS
+ENV ADMINUSER admin
+ENV PASSWORD youtube
 # Copy the rest of the app
 COPY . .
 
-ENV APPNAME YDL
-ENV ADMINUSER admin
-ENV PASSWORD youtube
-RUN python3 ./setup.py --appname=${APPNAME} --username=${ADMINUSER} --password=${PASSWORD}
+# RUN python3 ./setup.py --appname=${APPNAME} --username=${ADMINUSER} --password=${PASSWORD}
 
 # Need to add in supervisord to make daemon work?
 
 # Port 8080 is exposed, people can adjust which port forwards to this
 EXPOSE 8080
-CMD ["gunicorn", "--workers 4", "--threads 4", "--bind 0.0.0.0:8080", "wsgi:app"]
+# ENTRYPOINT ["gunicorn", "--workers 4", "--threads 4", "--bind 0.0.0.0:8080", "wsgi:app"]
+# ENTRYPOINT ["./startup.sh", "${APPNAME}", "${ADMINUSER}", "${PASSWORD}"]
+# Can't use form above as variables don't get injected.
+# ENTRYPOINT exec ./startup.sh ${APPNAME} ${ADMINUSER} ${PASSWORD}
+# Directly referencing the variables in Bash now
+ENTRYPOINT ["./startup.sh"]
+
 # Needed because gunicorn doesn't execute in the correct environment
 # CMD ["./startup.sh"]
