@@ -55,7 +55,7 @@ def WEB_INDEX():
             listOfProxies.append(proxy[0])
 
         #return the home page
-        return flask.render_template('index.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
+        return flask.render_template('index.html', applicationName = GET_APP_TITLE(), username = SANATIZE_TEXT(flask.session['LOGGED_IN_ACCOUNT_DATA'][0]), downloadDirs = GET_DL_DIRS(), DEFAULT_VIDEO_DOWNLOAD_DIR = DEFAULT_VIDEO_DOWNLOAD_DIR, proxies = listOfProxies)
     
     #the user isnt logged in
     else:
@@ -203,7 +203,7 @@ def WEB_QUEUE():
         DATABASE_CONNECTION.close()
 
         #return the queue page
-        return flask.render_template('queue.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
+        return flask.render_template('queue.html', applicationName = GET_APP_TITLE(), username = SANATIZE_TEXT(flask.session['LOGGED_IN_ACCOUNT_DATA'][0]), vidURL = YTDL_URL, vidQualSet = YTDL_FORMAT)
     
     #the user isnt logged in
     else:
@@ -249,7 +249,7 @@ def WEB_HISTORY():
         '''
 
         #return the history page
-        return flask.render_template('history.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0])
+        return flask.render_template('history.html', applicationName = GET_APP_TITLE(), username = SANATIZE_TEXT(flask.session['LOGGED_IN_ACCOUNT_DATA'][0]))
     
     #the user isnt logged in
     else:
@@ -356,7 +356,7 @@ def WEB_REGISTER():
     if (len(registrationKeys) > 0):
 
         #return the registration page since there are registration keys
-        return flask.render_template('register.html', applicationName = GET_APP_TITLE(), registration_key = registrationKey)
+        return flask.render_template('register.html', applicationName = GET_APP_TITLE(), registration_key = SANATIZE_TEXT(registrationKey))
     
     #there are no login keys
     else:
@@ -699,7 +699,7 @@ def WEB_SUBSCRIPTIONS():
         databaseSubscriptionsDump = DATABASE_CURSOR.fetchall()
 
         #return the subscriptions page
-        return flask.render_template('subscriptions.html', applicationName = GET_APP_TITLE(), username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(get_default = True), subscriptions = databaseSubscriptionsDump)
+        return flask.render_template('subscriptions.html', applicationName = GET_APP_TITLE(), username = SANATIZE_TEXT(flask.session['LOGGED_IN_ACCOUNT_DATA'][0]), downloadDirs = GET_DL_DIRS(get_default = True), subscriptions = databaseSubscriptionsDump)
     
     #the user isnt logged in
     else:
@@ -850,7 +850,7 @@ def WEB_ADMIN():
             proxies = DATABASE_CURSOR.execute('SELECT * FROM proxies').fetchall()
 
             #return the admin page
-            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = flask.session['LOGGED_IN_ACCOUNT_DATA'][0], downloadDirs = GET_DL_DIRS(), proxies = proxies, defaultDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, registerKeys = registrationKeys)
+            return flask.render_template('admin.html', applicationName = GET_APP_TITLE(), userData = userDataForBrowser, username = SANATIZE_TEXT(flask.session['LOGGED_IN_ACCOUNT_DATA'][0]), downloadDirs = GET_DL_DIRS(), proxies = proxies, defaultDownloadDir = DEFAULT_VIDEO_DOWNLOAD_DIR, registerKeys = registrationKeys)
         
         #they dont have admin priveleges, just return them to the homepage
         else:
@@ -1135,6 +1135,12 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
 
     #return the path of the video
     return '{}/{}'.format(parentDownloadDir, outputFileName)
+
+#function to sanatize text being sent to the webpage to prevent people embedding scripts
+def SANATIZE_TEXT(string) -> str:
+
+    #replace the < and > characters with their codes to prevent people from embedding malicious content
+    return string.replace('>', '&gt;').replace('<', '&lt;')
 
 #function to get the app's title (advantage of this to the older method is that the app title can be updated without a restart)
 def GET_APP_TITLE() -> str:
