@@ -44,14 +44,15 @@ Install the requrired modules with pip:
 
 `python3 -m pip install -r requirements.txt`
 
-#### Ubuntu Server Instructions:
+#### Non-Docker Install Instructions:
 
 Pre setup-warning: The user this program is running under should have r/w access to **EVERY** directory that is being referenced. That means the current directory you are installing in, and any external server download directories you are downloading to.
 
 1. Run `setup.py` with Python>=3.6 (below 3.6 isn't tested yet). Make sure to use a strong password for your admin account, to ensure that nobody can log on without your permission.
-2. Once you have ran the setup program, without an error, run the Flask application by running `gunicorn3 --workers 4 --threads 4 --bind 0.0.0.0:80 wsgi:app`. You can change the host to `127.0.0.1` if you only want the application to work on your computer, but running it as `0.0.0.0` allows others to access the app. You can also change the port from `80` to something else; `80` is just the default (warning: port `80` may already be taken by your Apache installation). The reason this uses `gunicorn3` instead of `flask run` is because Flask is **NOT** a development server.
+2. Once you have ran the setup program, without an error, run the Flask application by running `gunicorn3 --workers 4 --threads 4 --bind 0.0.0.0:8080 wsgi:app`. You can change the host to `127.0.0.1` if you only want the application to work on your computer, but running it as `0.0.0.0` allows others to access the app. You can also change the port from `8080` to something else; `8080` is just the default (warning: port `80` may already be taken by your Apache installation).
 
-### Docker Install
+#### Docker Install Instructions:
+
 ~~Use the provided docker-compose.yml file (with your modifications or run directly from the command line).~~  
 Docker-compose absolutely sucks and is causing heaps of issues. You'll have to manually build the docker image and run that.  
 
@@ -89,6 +90,14 @@ Leave an issue on the [official repo](https://github.com/katznboyz1/youtube-dl-s
 ## Known issues:
 
 - Downloading certain videos with the ultra high format will lead to a missing codec error if you play it on windows.
+
+## Want to contribute?
+
+There are some things that still need to be added, and if you want to help out it would be appreciated! Here is a list of some of the needed bits:
+
+- A new favicon for the application
+- Known issue fixes
+- Unknown issue fixes
 
 ## Disclaimers
 
