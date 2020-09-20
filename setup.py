@@ -1,9 +1,12 @@
 #import statements
 import json, sqlite3, os, getpass
 import werkzeug.security as WZS
+import argparse
 
-#get the name of the application
-applicationName = str(input('What would you like your youtube-dl-server application to be named? '))
+parser = argparse.ArgumentParser()
+parser.add_argument("--appname",  type=str, help="name for the application")
+parser.add_argument("--username", type=str, help="username for the admin account")
+parser.add_argument("--password", type=str, help="password for the admin account")
 
 #check if there is already a database
 if (os.path.exists('./youtube-dl-server-database.db')):
@@ -12,11 +15,24 @@ if (os.path.exists('./youtube-dl-server-database.db')):
     print('There already is an existing database! Please move the old database to another directory, or if you are trying to use the old database again, rename it to "youtube-dl-server-database.db.old", then run the setup program again, and then replace the new database with the old database. Please keep in mind that importing a database from an older version of the program can lead to errors, if its not converted properly!')
     exit()
 
-#get the credentials for the admin user
-print('In order for you to administer the server from the web, there needs to be an admin user. Please create one. Make sure that the admin\'s password is strong.')
-username = str(input('Admin username: '))
-password = str(getpass.getpass(prompt = 'Admin password: '))
-passwordConfirm = str(getpass.getpass(prompt = 'Confirm admin password: '))
+
+# Parse arguments from cmdline
+args = parser.parse_args()
+if args.appname and args.username and args.password:
+    applicationName = args.appname
+    username        = args.username
+    password        = args.password
+    passwordConfirm = args.password
+#Run the original setup
+else:
+    #get the name of the application
+    applicationName = str(input('What would you like your youtube-dl-server application to be named? '))
+
+    #get the credentials for the admin user
+    print('In order for you to administer the server from the web, there needs to be an admin user. Please create one. Make sure that the admin\'s password is strong.')
+    username = str(input('Admin username: '))
+    password = str(getpass.getpass(prompt = 'Admin password: '))
+    passwordConfirm = str(getpass.getpass(prompt = 'Confirm admin password: '))
 
 #hash the admins password
 hashedPassword = WZS.generate_password_hash(password)

@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+    ydl:
+        # Builds the local Dockerfile image
+        # Should probably push this somewhere
+        build: ./
+        ports:
+            - "8080:8080" #host : container
+        restart: unless-stopped
+        volumes:
+            # Where downloaded videos should go
+            - /opt/youtubedownloads:/app/downloads
+            # Where the database is
+            - /opt/database:/app/youtube-dl-server-database.db
+        environment:
+            - APPNAME=YDL
+            - ADMINUSER=admin
+            - PASSWORD=youtube 
+            - TZ=Australia/Melbourne

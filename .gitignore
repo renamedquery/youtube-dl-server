@@ -1,0 +1,4 @@
+__pycache__
+flask_session
+youtube-dl-server-database.db
+.vscode

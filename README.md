@@ -51,6 +51,19 @@ Pre setup-warning: The user this program is running under should have r/w access
 1. Run `setup.py` with Python>=3.6 (below 3.6 isn't tested yet). Make sure to use a strong password for your admin account, to ensure that nobody can log on without your permission.
 2. Once you have ran the setup program, without an error, run the Flask application by running `gunicorn3 --workers 4 --threads 4 --bind 0.0.0.0:80 wsgi:app`. You can change the host to `127.0.0.1` if you only want the application to work on your computer, but running it as `0.0.0.0` allows others to access the app. You can also change the port from `80` to something else; `80` is just the default (warning: port `80` may already be taken by your Apache installation). The reason this uses `gunicorn3` instead of `flask run` is because Flask is **NOT** a development server.
 
+### Docker Install
+Use the provided docker-compose.yml file (with your modifications or run directly from the command line).  
+The environment variables are:  
+* APPNAME - the name you want the application to have
+* ADMINUSER - the name of the admin user
+* PASSWORD - the password for the admin user
+
+And the volumes are:  
+\# Where downloaded videos should go  
+`- /opt/youtubedownloads:/app/downloads`  
+\# Where the database is  
+`- /opt/database:/app/youtube-dl-server-database.db`  
+
 ## Having an issue?
 
 Leave an issue on the [official repo](https://github.com/katznboyz1/youtube-dl-server)!
