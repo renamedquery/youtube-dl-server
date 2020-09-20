@@ -51,6 +51,37 @@ Pre setup-warning: The user this program is running under should have r/w access
 1. Run `setup.py` with Python>=3.6 (below 3.6 isn't tested yet). Make sure to use a strong password for your admin account, to ensure that nobody can log on without your permission.
 2. Once you have ran the setup program, without an error, run the Flask application by running `gunicorn3 --workers 4 --threads 4 --bind 0.0.0.0:80 wsgi:app`. You can change the host to `127.0.0.1` if you only want the application to work on your computer, but running it as `0.0.0.0` allows others to access the app. You can also change the port from `80` to something else; `80` is just the default (warning: port `80` may already be taken by your Apache installation). The reason this uses `gunicorn3` instead of `flask run` is because Flask is **NOT** a development server.
 
+### Docker Install
+~~Use the provided docker-compose.yml file (with your modifications or run directly from the command line).~~  
+Docker-compose absolutely sucks and is causing heaps of issues. You'll have to manually build the docker image and run that.  
+
+1. `docker build -t katznboyz1/youtube-dl-server:latest .`
+2. ```
+    docker run -d -p 8080:8080 \
+    -v /path/to/downloaded/vids:/app/downloads \
+    -v /path/to/database:/app/db \
+    -e APPNAME=YDS \
+    -e ADMINUSER=admin \
+    -e PASSWORD=youtube \
+    -e TZ=Australia/Melbourne \
+    katznboyz1/youtube-dl-server:latest
+    ```
+
+
+The environment variables are:  
+* APPNAME - the name you want the application to have (default: YDS)
+* ADMINUSER - the name of the admin user (default: admin)
+* PASSWORD - the password for the admin user (default: youtube)
+* TZ - for the timezone. Not actually sure if this is going to work.
+
+And the volumes are:  
+\# Where downloaded videos should go  
+`- /opt/youtubedownloads:/app/downloads`  
+\# Where the database is  
+`- /opt/database:/app/db`
+
+The docker image exposes port 8080 for the webserver.
+
 ## Having an issue?
 
 Leave an issue on the [official repo](https://github.com/katznboyz1/youtube-dl-server)!

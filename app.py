@@ -3,8 +3,14 @@ import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, 
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 
+from config import DATABASE_PATH
+
 #make a connection to the database
-DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+# DATABASE_PATH = os.path.join('db' + os.sep + 'youtube-dl-server-database.db')
+# LEGACY DATABASE_PATH
+#DATABASE_PATH = ('./youtube-dl-server-database.db')
+
+DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
 #the default directory for the videos to be downloaded to
@@ -36,7 +42,7 @@ def WEB_INDEX():
         listOfProxies = []
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the list of proxies from the database
@@ -140,7 +146,7 @@ def WEB_QUEUE():
             return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'General error downloading the video. This site/format is probably not supported. Try using bestvideo/bestaudio if you are sure that this site is supported.')
 
         #the database connection
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 
         #the database cursor
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
@@ -217,7 +223,7 @@ def WEB_HISTORY():
         #this code can also be repurposed with an option to refresh the webpage or have it only load once
         '''
         #the database connection
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the history data
@@ -259,7 +265,7 @@ def WEB_HISTORY_JSON():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data about the download history
@@ -287,7 +293,7 @@ def WEB_HISTORYCLR():
         #check that they are an admin
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -321,7 +327,7 @@ def WEB_HISTORYCLR():
 def WEB_LOGIN():
 
     #connect to the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #get the amount of login keys
@@ -336,7 +342,7 @@ def WEB_LOGIN():
 def WEB_REGISTER():
     
     #connect to the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #get the amount of login keys
@@ -395,7 +401,7 @@ def WEB_AUTH():
     alwaysSamePath = '/'.join(referringURLPath)
     
     #initialize a connection with the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 
     #giant try catch just in case
     try:
@@ -443,7 +449,7 @@ def WEB_ADDUSER():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -503,7 +509,7 @@ def WEB_REGNEWUSER():
     newUserRegistrationKey = flask.request.form.get('registration_key')
 
     #connect to the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #check if the registration key is in the database
@@ -550,7 +556,7 @@ def WEB_DELETEUSER():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -600,7 +606,7 @@ def WEB_MAKEREGKEY():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -642,7 +648,7 @@ def WEB_DELETEREGKEY():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -685,7 +691,7 @@ def WEB_SUBSCRIPTIONS():
         #get the subscription data from the database (lines below)
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get all the data from the subscriptions table (its fine to dump it all, no sensitive data is here)
@@ -733,7 +739,7 @@ def WEB_MANAGESUBSCRIPTION():
                     #add the subscription to the subscription table (the code below)
 
                     #create the database connection
-                    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+                    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
                     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
                     #the list of "downloaded" videos
@@ -775,7 +781,7 @@ def WEB_MANAGESUBSCRIPTION():
             FORM_ID = str(flask.request.form.get('subscription_id'))
 
             #delete the entry with the matching id in the subscriptions table
-            DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+            DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
             DATABASE_CONNECTION.execute('DELETE FROM subscriptions WHERE subscription_id = ?', (FORM_ID,))
             DATABASE_CONNECTION.commit()
 
@@ -802,7 +808,7 @@ def WEB_ADMIN():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the data for the current user to make sure that they are an admin
@@ -869,7 +875,7 @@ def WEB_ADMINACTION():
     if (isUserLoggedIn(flask.session)):
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the form data
@@ -968,7 +974,7 @@ def isUserLoggedIn(userSession) -> bool:
         PASSWORD = userSession['LOGGED_IN_ACCOUNT_DATA'][1]
 
         #connect to the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #try to get the users password that is in the database
@@ -1134,7 +1140,7 @@ def downloadVideo(videoURL, videoFormat, parentDownloadDir = DEFAULT_VIDEO_DOWNL
 def GET_APP_TITLE() -> str:
 
     #connect to the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #get the app title
@@ -1147,7 +1153,7 @@ def GET_APP_TITLE() -> str:
 def GET_DL_DIRS(get_default = False) -> list:
 
     #connect to the database
-    DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
     DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
     #get the list of directories that can be downloaded to
@@ -1184,7 +1190,7 @@ def YTDL_POLLER():
     while (1): 
 
         #initialize a connection with the database
-        DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+        DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
         DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
         #get the queue for the videos (the ones where the status is 1 (pending download))

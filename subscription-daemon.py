@@ -3,8 +3,10 @@
 #import statements
 import flask, youtube_dl, sqlite3, json, time, os
 
+from config import DATABASE_PATH
+
 #make a connection to the database
-DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
 #select the data from the subscriptions table
