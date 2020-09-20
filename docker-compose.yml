@@ -12,7 +12,7 @@ services:
             # Where downloaded videos should go
             - /opt/youtubedownloads:/app/downloads
             # Where the database is
-            - /opt/database:/app/youtube-dl-server-database.db
+            - /opt/database:/app/db
         environment:
             - APPNAME=YDL
             - ADMINUSER=admin

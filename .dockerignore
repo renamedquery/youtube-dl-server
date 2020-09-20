@@ -6,3 +6,4 @@ youtube-dl-server-database.db
 .vscode
 README.md
 docker-compose.yml
+db/*

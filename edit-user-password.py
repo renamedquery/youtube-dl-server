@@ -4,8 +4,11 @@
 import sqlite3, getpass
 import werkzeug.security as WZS
 
+from config import DATABASE_PATH
+
 #connect to the database
-DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+
+DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
 
 #get the account that they want to change the password for

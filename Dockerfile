@@ -3,9 +3,9 @@ FROM ubuntu:20.04
 # Folder we're keeping the app in
 WORKDIR /app
 # Where videos download by default
-VOLUME ./downloads
+VOLUME /app/downloads
 # It is a very good idea to put this somewhere else
-VOLUME ./youtube-dl-server-database.db
+VOLUME /app/db
 
 # To prevent tzdata ruining the build process
 ENV TZ=Australia/Melbourne

@@ -3,13 +3,15 @@ import json, sqlite3, os, getpass
 import werkzeug.security as WZS
 import argparse
 
+from config import DATABASE_PATH
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--appname",  type=str, help="name for the application")
 parser.add_argument("--username", type=str, help="username for the admin account")
 parser.add_argument("--password", type=str, help="password for the admin account")
 
 #check if there is already a database
-if (os.path.exists('./youtube-dl-server-database.db')):
+if (os.path.exists(DATABASE_PATH)):
 
     #tell the user that there is a database, then exit. the user will then do what they need to do with the old database.
     print('There already is an existing database! Please move the old database to another directory, or if you are trying to use the old database again, rename it to "youtube-dl-server-database.db.old", then run the setup program again, and then replace the new database with the old database. Please keep in mind that importing a database from an older version of the program can lead to errors, if its not converted properly!')
@@ -45,7 +47,7 @@ if (not WZS.check_password_hash(hashedPassword, password) or password != passwor
     exit()
 
 #create the database
-DATABASE_CONNECTION = sqlite3.connect('./youtube-dl-server-database.db')
+DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
 
 #make the users table
 DATABASE_CONNECTION.execute('''
