@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+        <h1 class = 'display-4'>youtube-dl</h1>
+        <p class = 'lead'>Enter a YouTube video URL (or a URL from a <a class = 'text-info' href = 'https://rg3.github.io/youtube-dl/supportedsites.html'>supported site</a>) to download it to the server. You can download the video to your computer by using the advanced options.</p>
+        <hr class = 'my-4'>
+        <form action = '/queue' method = 'POST'>
+            <div>
+                <div class = 'input-group'>
+                    <input name = 'url' type = 'url' class = 'form-control' placeholder = 'URL' aria-label = 'URL' aria-describedby = 'button-submit' autofocus>
+                    <select class = 'custom-select' name = 'format'>
+                        <option value = 'best'>Default Format (Works Everywhere)</option>
+                        <optgroup label = 'Video'>
+                            <option value = 'bestvideo'>Best Video (YouTube)</option>
+                            <option value = 'mp4'>MP4 (YouTube + Other Sites)</option>
+                            <option value = 'webm'>WebM (YouTube)</option>
+                        </optgroup>
+                        <optgroup label = 'Audio'>
+                            <option value = 'bestaudio'>Best Audio (YouTube)</option>
+                            <option value = 'm4a'>M4A (YouTube)</option>
+                        </optgroup>
+                        <option value = 'ultra'>Ultra High Quality Audio and Video (Works on YouTube)</option>
+                    </select>
+                    <div class = 'input-group-append'>
+                        <button class = 'btn btn-primary' type = 'submit' id = 'button-submit'>Submit</button>
+                    </div>
+                </div>
+            </div>
+            <hr class = 'my-4'>
+            <button class = 'btn btn-dark' type = 'button' data-toggle = 'collapse' data-target = '#advancedOptionsCollapsableDiv' aria-expanded = 'false' aria-controls = 'advancedOptionsCollapsableDiv'>View advanced options</button>
+            <hr class = 'my-4'>
+            <div class = 'collapse' id = 'advancedOptionsCollapsableDiv'>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>What folder do you want the video to download to?</p>
+                    <select class = 'custom-select col-lg-6' name = 'directory'>
+                        <option value = '{{ DEFAULT_VIDEO_DOWNLOAD_DIR }}'>Default download folder</option>
+                        <option value = '#browser2computer'>Download through the browser to my computer</option>
+                        {% for file in downloadDirs %}
+                            <option value = '{{ file }}'>{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>What order do you want the videos downloaded in?</p>
+                    <select class = 'custom-select col-lg-6' name = 'order'>
+                        <option value = 'normal'>The normal order</option>
+                        <option value = 'random'>A random order</option>
+                    </select>
+                </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>What proxy would you like to use? (Experimental)</p>
+                    <select class = 'custom-select col-lg-6' name = 'proxy'>
+                        <option value = '#none'>No proxy</option>
+                        {% for proxy in proxies %}
+                            <option value = '{{ proxy }}'>{{ proxy }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>Custom format override (ignores dropdown):</p>
+                    <div class = 'col-lg-6 p-0'>
+                        <input name = 'custom_format' class = 'form-control' type = 'text' placeholder = '140, 22, 1998, etc...' class = 'col'>
+                    </div>
+                </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>Custom author metadata override (ignores source metadata):</p>
+                    <div class = 'col-lg-6 p-0'>
+                        <input name = 'author_override' class = 'form-control' type = 'text' placeholder = 'Author' class = 'col'>
+                    </div>
+                </div>
+                <div class = 'row justify-content-center'>
+                    <p class = 'col-lg-6 my-auto'>Custom title metadata override (ignores source metadata):</p>
+                    <div class = 'col-lg-6 p-0'>
+                        <input name = 'title_override' class = 'form-control' type = 'text' placeholder = 'Title' class = 'col'>
+                    </div>
+                </div>
+                <div class = 'row justify-content-center' style = 'min-height:50px;'>
+                    <p class = 'my-auto p-0'>Remove the upload date from the file name (where applicable)</p>
+                    <input type = 'checkbox' name = 'remove_date' class = 'my-auto' style = 'margin-left:10px !important;' value = '1'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}

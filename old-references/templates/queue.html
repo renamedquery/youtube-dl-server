@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+    <h1 class = 'display-4'>downloading...</h1>
+    <p class = 'lead'>Your video is being downloaded now. It will show up soon. Please be patient, as depending on your network connection, or the length of the video, as well as the quality, downloads can take up to an hour!</p>
+    <p class = 'lead'>You downloaded {{ vidURL }} with the quality setting of {{ vidQualSet }}.</p>
+    <p class = 'lead'>View the download queue status <a class = 'text-info' href = "{{ url_for('WEB_HISTORY') }}">here</a>.</p>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}
