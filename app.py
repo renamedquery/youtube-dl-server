@@ -1297,7 +1297,7 @@ flask_session.Session(app)
 
 logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
 
-@app.route('/login', methods = ['POST'])
+@app.route('/auth', methods = ['POST'])
 def app_register():
 
     postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
@@ -1307,9 +1307,10 @@ def app_register():
     dbPasswordHash = scopedb.run('SELECT password FROM users WHERE username = ?', [postLoginInfo[0],])
 
     if (not WZS.check_password_hash(dbPasswordHash[0][0], postLoginInfo[1])):
-        
+
         logger.log('POST REQUEST TO /login FAILED FOR USER "{}" (FAILED TO AUTHENTICATE)'.format(postLoginInfo[0]))
-        return {'status':'could not authenticate'}, 401
+        return {'status':'Could not authenticate. Incorrect username or password.'}, 401
 
     logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
-    return {'status':'success'}, 200
+    flask.session['authdata'] = postLoginInfo
+    return {'status':'Successfully logged in!'}, 200
