@@ -23,7 +23,7 @@ flask_session.Session(app)
 logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
 
 @app.route('/auth', methods = ['POST'])
-def app_register():
+def app_auth():
 
     postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
     logger.log('POST REQUEST TO /login FOR USER "{}"'.format(postLoginInfo[0]))
@@ -39,6 +39,8 @@ def app_register():
     logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
     flask.session['authdata'] = postLoginInfo
     return {'status':'Successfully logged in!'}, 200
+
+# next up is the deauth route (for logging out)
 
 """
 #import statements
