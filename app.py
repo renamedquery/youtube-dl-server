@@ -1268,6 +1268,11 @@ def YTDL_POLLER():
 _thread.start_new_thread(YTDL_POLLER, ())
 """
 
+'''
+POSSIBLY UNCLEAR VARIABLE NAMES:
+    "scopedb": scope database, the equivelant of the global variable "db" but within the scope of a route function. only to be used during that specific route, and not in any other scope.
+'''
+
 import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
@@ -1290,4 +1295,21 @@ logger.log('SUCCESSFULLY SET UP THE FLASK APP.')
 
 flask_session.Session(app)
 
-logger.log('SUCCESSFULLY CREATED A FLASH SESSION FOR THE APP.')
+logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
+
+@app.route('/login', methods = ['POST'])
+def app_register():
+
+    postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
+    logger.log('POST REQUEST TO /login FOR USER "{}"'.format(postLoginInfo[0]))
+
+    scopedb = dbhelper.dbhelper(DATABASE_PATH)
+    dbPasswordHash = scopedb.run('SELECT password FROM users WHERE username = ?', [postLoginInfo[0],])
+
+    if (not WZS.check_password_hash(dbPasswordHash[0][0], postLoginInfo[1])):
+        
+        logger.log('POST REQUEST TO /login FAILED FOR USER "{}" (FAILED TO AUTHENTICATE)'.format(postLoginInfo[0]))
+        return {'status':'could not authenticate'}, 401
+
+    logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
+    return {'status':'success'}, 200

@@ -9,12 +9,12 @@ class dbhelper:
 
     def __init__(self, database_location) -> None:
 
-        dbconn = sqlite3.connect(database_location)
-        dbcur = dbconn.cursor()
+        self.dbconn = sqlite3.connect(database_location)
+        self.dbcur = self.dbconn.cursor()
         logger.log('SUCCESSFULLY CONNECTED TO THE DATABASE. DID NOT VERIFY INTEGRITY OF CONTENTS.')
         return None        
     
-    def runQuery(query, queryQuestionMarkTitles) -> list:
+    def run(self, query, queryQuestionMarkTitles) -> list:
 
         logger.log('EXECUTING QUERY.')
-        return dbconn.execute(query, (*queryQuestionMarkTitles)).fetchall()
+        return self.dbconn.execute(query, tuple(queryQuestionMarkTitles)).fetchall()
