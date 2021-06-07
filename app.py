@@ -1267,3 +1267,27 @@ def YTDL_POLLER():
 #start the poller thread
 _thread.start_new_thread(YTDL_POLLER, ())
 """
+
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
+import urllib.parse as URLLIB_PARSE
+import werkzeug.security as WZS
+from config import DATABASE_PATH
+import dbhelper, logger
+
+logger.log('SUCCESSFULLY IMPORTED ALL LIBRARIES.')
+
+db = dbhelper.dbhelper(DATABASE_PATH)
+
+logger.log('SUCCESSFULLY SET UP DATABASE HELPER.')
+
+app = flask.Flask(__name__)
+app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_TYPE'] = 'filesystem'
+app._static_folder = './static'
+app.template_folder = './templates'
+
+logger.log('SUCCESSFULLY SET UP THE FLASK APP.')
+
+flask_session.Session(app)
+
+logger.log('SUCCESSFULLY CREATED A FLASH SESSION FOR THE APP.')
