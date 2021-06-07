@@ -1,8 +1,8 @@
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib, dbhelper, logger
 import urllib.parse as URLLIB_PARSE
 import werkzeug.security as WZS
 from config import DATABASE_PATH
-import dbhelper, logger
+from flask_cors import CORS, cross_origin
 
 logger.log('SUCCESSFULLY IMPORTED ALL LIBRARIES.')
 
@@ -19,28 +19,42 @@ app.template_folder = './templates'
 logger.log('SUCCESSFULLY SET UP THE FLASK APP.')
 
 flask_session.Session(app)
+CORS(app)
 
 logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
 
 @app.route('/auth', methods = ['POST'])
+@cross_origin()
 def app_auth():
 
     postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
     logger.log('POST REQUEST TO /login FOR USER "{}"'.format(postLoginInfo[0]))
 
     scopedb = dbhelper.dbhelper(DATABASE_PATH)
-    dbPasswordHash = scopedb.run('SELECT password FROM users WHERE username = ?', [postLoginInfo[0],])
 
-    if (not WZS.check_password_hash(dbPasswordHash[0][0], postLoginInfo[1])):
+    if (not scopedb.checkAuthStatus(postLoginInfo)):
 
         logger.log('POST REQUEST TO /login FAILED FOR USER "{}" (FAILED TO AUTHENTICATE)'.format(postLoginInfo[0]))
         return {'status':'Could not authenticate. Incorrect username or password.'}, 401
 
     logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
-    flask.session['authdata'] = postLoginInfo
-    return {'status':'Successfully logged in!'}, 200
 
-# next up is the deauth route (for logging out)
+    flask.session['authdata'] = postLoginInfo
+    flask.session.modified = True
+    
+    return {'status':'Successfully logged in.'}, 200
+
+@app.route('/deauth', methods = ['POST'])
+@cross_origin()
+def app_deauth():
+
+    try:
+        del flask.session['authdata']
+        flask.session.modified = True
+        return {'status', 'Successfully logged out.'}, 200
+
+    except:
+        return {'status':'Was not logged in.'}, 200
 
 """
 #import statements

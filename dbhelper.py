@@ -1,6 +1,7 @@
 # a module to help out with communication to the database
 
 import sqlite3, logger
+import werkzeug.security as WZS
 
 class dbhelper:
 
@@ -18,3 +19,9 @@ class dbhelper:
 
         logger.log('EXECUTING QUERY.')
         return self.dbconn.execute(query, tuple(queryQuestionMarkTitles)).fetchall()
+    
+    # flaskSesison should be [username, password] unhashed
+    def checkAuthStatus(self, flaskSession):
+
+        dbPasswordHash = self.run('SELECT password FROM users WHERE username = ?', [flaskSession[0],])
+        return WZS.check_password_hash(dbPasswordHash[0][0], flaskSession[1])

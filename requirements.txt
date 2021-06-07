@@ -3,3 +3,4 @@ youtube-dl
 flask-session
 gunicorn
 requests
+flask-cors

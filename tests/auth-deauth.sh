@@ -1,0 +1,2 @@
+curl -X POST -d 'username=admin' -d 'password=admin' -H "Access-Control-Request-Method: POST" -H "Origin: 127.0.0.1" 127.0.0.1:8192/auth
+curl -X POST -d 'username=admin' -d 'password=admin' -H "Access-Control-Request-Method: POST" -H "Origin: 127.0.0.1" 127.0.0.1:8192/deauth
