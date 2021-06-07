@@ -1,3 +1,45 @@
+import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
+import urllib.parse as URLLIB_PARSE
+import werkzeug.security as WZS
+from config import DATABASE_PATH
+import dbhelper, logger
+
+logger.log('SUCCESSFULLY IMPORTED ALL LIBRARIES.')
+
+db = dbhelper.dbhelper(DATABASE_PATH)
+
+logger.log('SUCCESSFULLY SET UP DATABASE HELPER.')
+
+app = flask.Flask(__name__)
+app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_TYPE'] = 'filesystem'
+app._static_folder = './static'
+app.template_folder = './templates'
+
+logger.log('SUCCESSFULLY SET UP THE FLASK APP.')
+
+flask_session.Session(app)
+
+logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
+
+@app.route('/auth', methods = ['POST'])
+def app_register():
+
+    postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
+    logger.log('POST REQUEST TO /login FOR USER "{}"'.format(postLoginInfo[0]))
+
+    scopedb = dbhelper.dbhelper(DATABASE_PATH)
+    dbPasswordHash = scopedb.run('SELECT password FROM users WHERE username = ?', [postLoginInfo[0],])
+
+    if (not WZS.check_password_hash(dbPasswordHash[0][0], postLoginInfo[1])):
+
+        logger.log('POST REQUEST TO /login FAILED FOR USER "{}" (FAILED TO AUTHENTICATE)'.format(postLoginInfo[0]))
+        return {'status':'Could not authenticate. Incorrect username or password.'}, 401
+
+    logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
+    flask.session['authdata'] = postLoginInfo
+    return {'status':'Successfully logged in!'}, 200
+
 """
 #import statements
 import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
@@ -380,66 +422,6 @@ def WEB_LOGOUT():
         pass
 
     #redirect the user to the home page
-    return flask.redirect(flask.url_for('WEB_INDEX'))
-
-#the function to handle any requests to the authentication page (for logging in, not for signing up)
-@app.route('/auth', methods = ['POST'])
-def WEB_AUTH():
-
-    #the page that sent the post request to authenticate
-    referringURL = flask.request.referrer
-
-    #get the path in the referring url (will return something like ['', 'login', '']) so you still need to remove the empty strings
-    referringURLPath = (URLLIB_PARSE.urlparse(referringURL).path).split('/')
-
-    #remove the empty strings in the url path list
-    for i in range(referringURLPath.count('')):
-
-        #remove an empty string
-        referringURLPath.remove('')
-    
-    #the path thats now parsed so that itll always be the same
-    alwaysSamePath = '/'.join(referringURLPath)
-    
-    #initialize a connection with the database
-    DATABASE_CONNECTION = sqlite3.connect(DATABASE_PATH)
-
-    #giant try catch just in case
-    try:
-    
-        #get the login form data
-        LOGIN_FORM_USERNAME = str(flask.request.form.get('username'))
-        LOGIN_FORM_PASSWORD = str(flask.request.form.get('password'))
-
-        #get the hashed password for the username (if the length of the response is 0, there is no user that exists with that name, so give an error)
-        DATABASE_CURSOR = DATABASE_CONNECTION.cursor()
-        DATABASE_CURSOR.execute('SELECT password FROM users WHERE username = ?', (LOGIN_FORM_USERNAME,)) #this tuple has to have a , at the end because of this error https://stackoverflow.com/questions/16856647/sqlite3-programmingerror-incorrect-number-of-bindings-supplied-the-current-sta
-        databaseResults = DATABASE_CURSOR.fetchall()
-        if (len(databaseResults) == 0):
-
-            #return an at the webpage
-            print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
-        
-        #match the two passwords
-        DATABASE_PASSWORD_HASH = databaseResults[0][0]
-        if (not WZS.check_password_hash(DATABASE_PASSWORD_HASH, LOGIN_FORM_PASSWORD)):
-
-            #the passwords didnt match, return an error at the webpage
-            print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-            return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
-                    
-        #set up the session data [username, password]
-        flask.session['LOGGED_IN_ACCOUNT_DATA'] = [LOGIN_FORM_USERNAME, LOGIN_FORM_PASSWORD]
-    
-    #something went wrong, notify the user
-    except:
-        
-        #return an error at the webpage
-        print('Failed login for {}'.format(LOGIN_FORM_USERNAME))
-        return flask.render_template('error2.html', applicationName = GET_APP_TITLE(), error = 'Invalid username or password. Login failed.')
-    
-    #return the temprary page
     return flask.redirect(flask.url_for('WEB_INDEX'))
 
 #the function to handle any requests to the add user page (only accessible by post request, by admins only)
@@ -1272,45 +1254,3 @@ _thread.start_new_thread(YTDL_POLLER, ())
 POSSIBLY UNCLEAR VARIABLE NAMES:
     "scopedb": scope database, the equivelant of the global variable "db" but within the scope of a route function. only to be used during that specific route, and not in any other scope.
 '''
-
-import flask, json, requests, time, _thread, os, youtube_dl, sqlite3, datetime, flask_session, random, pip, shutil, hashlib
-import urllib.parse as URLLIB_PARSE
-import werkzeug.security as WZS
-from config import DATABASE_PATH
-import dbhelper, logger
-
-logger.log('SUCCESSFULLY IMPORTED ALL LIBRARIES.')
-
-db = dbhelper.dbhelper(DATABASE_PATH)
-
-logger.log('SUCCESSFULLY SET UP DATABASE HELPER.')
-
-app = flask.Flask(__name__)
-app.config['SESSION_PERMANENT'] = True
-app.config['SESSION_TYPE'] = 'filesystem'
-app._static_folder = './static'
-app.template_folder = './templates'
-
-logger.log('SUCCESSFULLY SET UP THE FLASK APP.')
-
-flask_session.Session(app)
-
-logger.log('SUCCESSFULLY CREATED A FLASK SESSION FOR THE APP.')
-
-@app.route('/auth', methods = ['POST'])
-def app_register():
-
-    postLoginInfo = [flask.request.form.get('username'), flask.request.form.get('password')]
-    logger.log('POST REQUEST TO /login FOR USER "{}"'.format(postLoginInfo[0]))
-
-    scopedb = dbhelper.dbhelper(DATABASE_PATH)
-    dbPasswordHash = scopedb.run('SELECT password FROM users WHERE username = ?', [postLoginInfo[0],])
-
-    if (not WZS.check_password_hash(dbPasswordHash[0][0], postLoginInfo[1])):
-
-        logger.log('POST REQUEST TO /login FAILED FOR USER "{}" (FAILED TO AUTHENTICATE)'.format(postLoginInfo[0]))
-        return {'status':'Could not authenticate. Incorrect username or password.'}, 401
-
-    logger.log('POST REQUEST TO /login SUCCEEDED FOR USER "{}"'.format(postLoginInfo[0]))
-    flask.session['authdata'] = postLoginInfo
-    return {'status':'Successfully logged in!'}, 200
