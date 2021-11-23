@@ -1,5 +1,1 @@
-__pycache__
-flask_session
-db/*
-youtube-dl-server-database.db
 .vscode
