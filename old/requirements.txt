@@ -1,0 +1,5 @@
+flask
+youtube-dl
+flask-session
+gunicorn
+requests

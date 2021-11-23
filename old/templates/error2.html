@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class = 'container d-flex flex-column text-light text-center'>
+    <div class = 'flex-grow-1'></div>
+    <div class = 'jumbotron bg-transparent flex-grow-1'>
+    <h1 class = 'display-4'>error!</h1>
+    <p class = 'lead'>The error was: {{ error }}<br><a class = 'text-info' href = 'javascript:history.back()'>(Take me back)</a></p>
+    </div>
+    <footer>
+    <div>
+        <p class = 'text-muted'>
+            Web frontend for <a class = 'text-light' href = 'https://rg3.github.io/youtube-dl/'>youtube-dl</a>, by <a class = 'text-light' href = 'https://twitter.com/manbearwiz'>@manbearwiz</a>, and modified by <a class = 'text-light' href = 'https://github.com/katznboyz1'>@katznboyz</a>.<br>
+        </p>
+    </div>
+    </footer>
+</div>
+{% endblock %}
